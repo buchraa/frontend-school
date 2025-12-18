@@ -1,0 +1,115 @@
+
+
+<div class="p-6 space-y-4" *ngIf="vm$ | async as vm">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold">Classes & Groupes</h1>
+      <a routerLink="/admin/school-years" class="text-sm text-indigo-600 hover:underline">Gérer les années</a>
+    </div>
+
+    <button type="button" (click)="refresh()"
+      class="px-3 py-1.5 rounded bg-indigo-600 text-white text-sm hover:bg-indigo-500">
+      Rafraîchir
+    </button>
+  </div>
+
+  <!-- Years loading/error -->
+  <div *ngIf="vm.yearsState.loading" class="text-sm text-gray-500">Chargement années...</div>
+  <div *ngIf="vm.yearsState.error" class="text-sm text-red-600">{{ vm.yearsState.error }}</div>
+
+  <!-- Filters + create group -->
+  <div class="bg-white rounded shadow p-4 grid grid-cols-1 md:grid-cols-5 gap-3 items-end"
+       *ngIf="!vm.yearsState.loading">
+
+    <div class="md:col-span-2">
+      <label class="block text-sm text-gray-600">Année</label>
+      <select class="w-full border rounded px-3 py-2"
+              [ngModel]="vm.selectedYearId"
+              (ngModelChange)="onYearChange($event)">
+        <option [ngValue]="undefined">Toutes</option>
+        <option *ngFor="let y of vm.yearsState.years; trackBy: trackById" [ngValue]="y.id">
+          {{ y.label }} {{ y.isActive ? '(active)' : '' }}
+        </option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-600">Code</label>
+      <input class="w-full border rounded px-3 py-2"
+             [(ngModel)]="form.code"
+             placeholder="TA-1" />
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-600">Niveau</label>
+      <input class="w-full border rounded px-3 py-2"
+             [(ngModel)]="form.level"
+             placeholder="Débutant / CE1..." />
+    </div>
+
+    <div>
+      <label class="block text-sm text-gray-600">Max étudiants</label>
+      <input class="w-full border rounded px-3 py-2"
+             type="number"
+             [(ngModel)]="form.maxStudents"
+             placeholder="20" />
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="block text-sm text-gray-600">Label (optionnel)</label>
+      <input class="w-full border rounded px-3 py-2"
+             [(ngModel)]="form.label"
+             placeholder="CE1 Groupe B - Samedi" />
+    </div>
+
+    <div class="md:col-span-1">
+      <button type="button"
+              class="w-full px-4 py-2 rounded bg-indigo-600 text-white disabled:opacity-50"
+              [disabled]="!vm.selectedYearId || !form.code.trim()"
+              (click)="createGroup()">
+        Créer groupe
+      </button>
+    </div>
+  </div>
+
+  <!-- Groups loading/error -->
+  <div *ngIf="vm.groupsState.loading" class="text-sm text-gray-500">Chargement groupes...</div>
+  <div *ngIf="vm.groupsState.error" class="text-sm text-red-600">{{ vm.groupsState.error }}</div>
+
+  <!-- Groups table -->
+  <div class="bg-white rounded shadow" *ngIf="!vm.groupsState.loading">
+    <table class="w-full text-sm">
+      <thead class="text-left border-b">
+        <tr>
+          <th class="p-3">Code</th>
+          <th class="p-3">Label</th>
+          <th class="p-3">Niveau</th>
+          <th class="p-3">Max</th>
+          <th class="p-3">Élèves</th>
+          <th class="p-3"></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let g of vm.groupsState.groups; trackBy: trackById" class="border-b">
+          <td class="p-3 font-medium">{{ g.code }}</td>
+          <td class="p-3">{{ g.label || '—' }}</td>
+          <td class="p-3">{{ g.level || '—' }}</td>
+          <td class="p-3">{{ g.maxStudents ?? '—' }}</td>
+          <td class="p-3">{{ g.students?.length ?? '—' }}</td>
+          <td class="p-3 text-right">
+            <a [routerLink]="['/admin/classes-details', g.id]"
+               class="text-indigo-600 hover:underline">
+              Détails
+            </a>
+          </td>
+        </tr>
+
+        <tr *ngIf="vm.groupsState.groups.length === 0">
+          <td class="p-3 text-gray-500" colspan="7">Aucun groupe.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+

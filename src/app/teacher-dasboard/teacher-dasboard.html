@@ -1,0 +1,46 @@
+<div class="max-w-5xl mx-auto p-6 space-y-6">
+  <h1 class="text-2xl font-bold">Mes classes</h1>
+
+  <ng-container *ngIf="vm$ | async as vm">
+    <!-- Loading / error classes -->
+    <div *ngIf="vm.classesState.loading" class="text-gray-500">Chargement…</div>
+    <div *ngIf="vm.classesState.error" class="text-red-600">{{ vm.classesState.error }}</div>
+
+    <!-- Liste des classes -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" *ngIf="!vm.classesState.loading">
+      <button
+        *ngFor="let c of vm.classesState.classes; trackBy: trackById"
+        (click)="selectClass(c.id)"
+        class="text-left bg-white rounded shadow p-4 hover:shadow-md border"
+        [class.border-indigo-500]="vm.selectedId === c.id"
+      >
+        <div class="flex items-center justify-between">
+          <div class="font-semibold">{{ c.label }} <span class="text-gray-500">({{ c.code }})</span></div>
+          <div class="text-xs text-gray-500">{{ c.level }}</div>
+        </div>
+        <div class="text-sm text-gray-600 mt-2">
+          Élèves : <strong>{{ c.studentsCount ?? '—' }}</strong>
+        </div>
+        <div class="text-xs text-indigo-600 mt-3">Voir les élèves →</div>
+      </button>
+    </div>
+
+    <!-- Élèves de la classe sélectionnée -->
+    <div class="bg-white rounded shadow p-4" *ngIf="vm.selectedId">
+      <h2 class="font-semibold mb-3">Élèves de la classe</h2>
+
+      <div *ngIf="vm.studentsState.loading" class="text-gray-500">Chargement élèves…</div>
+      <div *ngIf="vm.studentsState.error" class="text-red-600">{{ vm.studentsState.error }}</div>
+
+      <ul *ngIf="!vm.studentsState.loading && !vm.studentsState.error" class="divide-y">
+        <li *ngFor="let s of vm.studentsState.students; trackBy: trackById" class="py-2 flex justify-between">
+          <span>{{ s.fullName }}</span>
+          <span class="text-gray-500 text-sm">{{ s.studentRef }}</span>
+        </li>
+        <li *ngIf="vm.studentsState.students.length === 0" class="py-2 text-gray-500">
+          Aucun élève trouvé.
+        </li>
+      </ul>
+    </div>
+  </ng-container>
+</div>

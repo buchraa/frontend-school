@@ -1,0 +1,98 @@
+<div class="flex items-center gap-3 mb-4">
+  <a
+    routerLink="/admin/classes-subjects"
+    class="inline-flex items-center gap-2 text-sm text-indigo-600 hover:underline"
+  >
+    ← Retour aux classes & groupes
+  </a>
+</div>
+<div class="p-6" *ngIf="vm$ | async as vm">
+
+  <div *ngIf="vm.groupState.loading" class="text-sm text-gray-500">Chargement...</div>
+  <div *ngIf="vm.groupState.error" class="text-sm text-red-600">{{ vm.groupState.error }}</div>
+
+  <ng-container *ngIf="!vm.groupState.loading && vm.groupState.group as g">
+
+    <!-- ADD TEACHER -->
+    <div class="bg-white rounded shadow p-4 space-y-2">
+      <h2 class="font-semibold">Enseignants</h2>
+
+      <div *ngIf="vm.teachersState.loading" class="text-sm text-gray-500">Chargement enseignants...</div>
+      <div *ngIf="vm.teachersState.error" class="text-sm text-red-600">{{ vm.teachersState.error }}</div>
+
+      <div class="flex gap-2 items-center" *ngIf="!vm.teachersState.loading">
+        <select class="border rounded px-3 py-2"
+                [(ngModel)]="selectedTeacherId">
+          <option [ngValue]="null">-- Choisir --</option>
+          <option *ngFor="let t of vm.teachersState.teachers; trackBy: trackById"
+                  [ngValue]="t.id">
+            {{ t.fullName }}
+          </option>
+        </select>
+
+        <button class="px-3 py-2 rounded bg-indigo-600 text-white"
+                [disabled]="!selectedTeacherId"
+                (click)="addTeacher()">
+          Ajouter
+        </button>
+      </div>
+
+      <div class="text-sm text-gray-600">
+        Affectés :
+        <span *ngFor="let t of (g.teachers ?? []); let last = last">
+          {{ t.fullName }}<span *ngIf="!last">, </span>
+        </span>
+      </div>
+    </div>
+
+    <!-- SEARCH STUDENTS -->
+    <div class="bg-white rounded shadow p-4 space-y-2 mt-4">
+      <h2 class="font-semibold">Élèves</h2>
+
+      <div class="flex gap-2">
+        <input class="flex-1 border rounded px-3 py-2"
+               [ngModel]="studentSearch"
+               (ngModelChange)="setSearch($event)"
+               placeholder="Rechercher élève..." />
+      </div>
+
+      <div *ngIf="vm.searchState.loading" class="text-sm text-gray-500">Recherche...</div>
+      <div *ngIf="vm.searchState.error" class="text-sm text-red-600">{{ vm.searchState.error }}</div>
+
+      <div class="border rounded" *ngIf="!vm.searchState.loading && vm.searchState.results.length">
+        <div *ngFor="let s of vm.searchState.results; trackBy: trackById"
+             class="p-2 flex justify-between items-center border-b">
+          <div>
+            <div class="font-medium">{{ s.fullName }}</div>
+            <div class="text-xs text-gray-500">{{ s.studentRef || '' }}</div>
+          </div>
+          <button class="text-sm text-indigo-600 hover:underline"
+                  (click)="addStudent(s)">
+            Ajouter
+          </button>
+        </div>
+      </div>
+
+      <h3 class="font-semibold mt-3">Élèves du groupe</h3>
+
+      <ul class="divide-y" *ngIf="(g.students ?? []).length; else empty">
+        <li *ngFor="let s of g.students; trackBy: trackById"
+            class="py-2 flex justify-between items-center">
+          <div>
+            <div class="font-medium">{{ s.fullName }}</div>
+            <div class="text-xs text-gray-500">{{ s.studentRef || '' }}</div>
+          </div>
+          <button class="text-sm text-red-600 hover:underline"
+                  (click)="removeStudent(s.id)">
+            Retirer
+          </button>
+        </li>
+      </ul>
+
+      <ng-template #empty>
+        <div class="text-sm text-gray-500">Aucun élève.</div>
+      </ng-template>
+    </div>
+
+  </ng-container>
+</div>

@@ -1,0 +1,72 @@
+<div class="max-w-3xl mx-auto p-6 space-y-6">
+
+  <h1 class="text-2xl font-bold text-center">
+    Inscription – Rentrée scolaire
+  </h1>
+
+  <!-- SUCCESS -->
+  <div *ngIf="success" class="bg-green-50 border border-green-200 p-4 rounded">
+    <h2 class="font-semibold text-green-800">Demande envoyée</h2>
+    <p class="text-sm text-green-700">
+      Votre demande d’inscription a bien été enregistrée.
+      Vous serez contacté après évaluation.
+    </p>
+  </div>
+
+  <!-- FORM -->
+  <form *ngIf="!success" class="space-y-6">
+
+    <!-- Parent -->
+    <div class="bg-white shadow rounded p-4 space-y-3">
+      <h2 class="font-semibold">Informations du parent</h2>
+
+      <input class="input" placeholder="Nom complet"
+        [(ngModel)]="form.parent.fullName" name="fullName" />
+
+      <input class="input" placeholder="Email"
+        [(ngModel)]="form.parent.email" name="email" />
+
+      <input class="input" placeholder="Téléphone"
+        [(ngModel)]="form.parent.phone" name="phone" />
+
+      <input class="input" type="password" placeholder="Mot de passe"
+        [(ngModel)]="form.parent.password" name="password" />
+    </div>
+
+    <!-- Children -->
+    <div class="bg-white shadow rounded p-4 space-y-3">
+      <h2 class="font-semibold">Enfants à inscrire</h2>
+
+      <div *ngFor="let c of form.children; let i = index"
+        class="border rounded p-3 flex justify-between items-center">
+        <div>
+          {{ c.firstName }} {{ c.lastName }} – {{ c.desiredLevel }}
+        </div>
+        <button type="button" class="text-red-600" (click)="removeChild(i)">
+          Supprimer
+        </button>
+      </div>
+
+      <!-- Add child -->
+      <div class="grid grid-cols-2 gap-2">
+        <input class="input" placeholder="Prénom" [(ngModel)]="newChild.firstName" name="cf" />
+        <input class="input" placeholder="Nom" [(ngModel)]="newChild.lastName" name="cl" />
+        <input class="input" type="date" [(ngModel)]="newChild.birthDate" name="cb" />
+        <input class="input" placeholder="Niveau souhaité" [(ngModel)]="newChild.desiredLevel" name="cd" />
+      </div>
+
+      <button type="button" class="btn-secondary" (click)="addChild()">
+        + Ajouter un enfant
+      </button>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="error" class="text-red-600">{{ error }}</div>
+
+    <!-- Submit -->
+    <button type="button" class="btn-primary w-full" (click)="submit()" [disabled]="submitting">
+      {{ submitting ? 'Envoi...' : 'Envoyer la demande' }}
+    </button>
+
+  </form>
+</div>

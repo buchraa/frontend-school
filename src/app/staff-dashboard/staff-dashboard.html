@@ -1,0 +1,448 @@
+<div class="space-y-8">
+
+  <!-- TITRE -->
+  <div>
+    <h1 class="text-2xl font-semibold text-slate-50">
+      Dashboard Gestion Paiements
+    </h1>
+    <p class="text-xs text-slate-400">
+      Suivi mensuel de la facturation, retards et imports bancaires.
+    </p>
+  </div>
+
+  <!-- FILTRES -->
+  <section class="bg-slate-900 border border-slate-800 rounded-lg p-4">
+    <h2 class="text-sm font-semibold mb-3 text-slate-100">
+      Filtres
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+      <label class="flex flex-col gap-1 text-slate-300">
+        <span>Année</span>
+        <input
+          type="number"
+          [(ngModel)]="year"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-slate-300">
+        <span>Mois</span>
+        <input
+          type="number"
+          [(ngModel)]="month"
+          min="1"
+          max="12"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-slate-300 md:col-span-2">
+        <span>Famille / Code</span>
+        <input
+          type="text"
+          [(ngModel)]="familyFilter"
+          placeholder="Nom ou code famille"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-slate-300">
+        <span>Statut</span>
+        <select
+          [(ngModel)]="statusFilter"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        >
+          <option value="ALL">Tous</option>
+          <option value="PENDING">En attente</option>
+          <option value="PARTIAL">Partiel</option>
+          <option value="PAID">Payé</option>
+          <option value="OVERDUE">En retard</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="mt-3 flex justify-end">
+      <button
+        (click)="refreshAll()"
+        class="px-3 py-1 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white font-medium"
+      >
+        Rafraîchir
+      </button>
+    </div>
+  </section>
+
+  <!-- STATUT DU MOIS -->
+  <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
+    <div class="flex items-center justify-between gap-2">
+      <h2 class="text-sm font-semibold text-slate-100">
+        Statut des familles pour {{ month }}/{{ year }}
+      </h2>
+    </div>
+
+    <div *ngIf="loadingStatus" class="text-xs text-slate-400">
+      Chargement du statut...
+    </div>
+
+    <div *ngIf="!loadingStatus && billingStatus.length">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left">Famille</th>
+              <th class="px-3 py-2 text-left">Code</th>
+              <th class="px-3 py-2 text-left">Enfants</th>
+              <th class="px-3 py-2 text-left">Montant dû</th>
+              <th class="px-3 py-2 text-left">Payé</th>
+              <th class="px-3 py-2 text-left">Statut</th>
+              <th class="px-3 py-2 text-left">Échéance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let b of filteredBillingStatus"
+              class="border-b border-slate-800 hover:bg-slate-900/70"
+            >
+              <td class="px-3 py-2">{{ b.parent.fullName }}</td>
+              <td class="px-3 py-2">{{ b.parent.familyCode }}</td>
+              <td class="px-3 py-2">{{ b.childrenCount }}</td>
+              <td class="px-3 py-2">
+                {{ b.expectedAmount | number: '1.2-2' }} €
+              </td>
+              <td class="px-3 py-2">
+                {{ b.paidAmount | number: '1.2-2' }} €
+              </td>
+              <td class="px-3 py-2">
+                <span
+                  class="px-2 py-1 rounded-full text-[0.7rem] font-medium"
+                  [ngClass]="{
+                    'bg-emerald-500/20 text-emerald-300': b.status === 'PAID',
+                    'bg-amber-500/20 text-amber-300': b.status === 'PARTIAL',
+                    'bg-red-500/20 text-red-300': b.status === 'OVERDUE',
+                    'bg-slate-700 text-slate-200': b.status === 'PENDING'
+                  }"
+                >
+                  {{ getStatusLabel(b.status) }}
+                </span>
+              </td>
+              <td class="px-3 py-2">
+                {{ b.dueDate | date: 'shortDate' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p
+      *ngIf="!loadingStatus && !billingStatus.length"
+      class="text-xs text-slate-400"
+    >
+      Aucune facturation pour ce mois.
+    </p>
+  </section>
+
+  <!-- FAMILLES EN RETARD -->
+  <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
+    <h2 class="text-sm font-semibold text-slate-100">Familles en retard</h2>
+
+    <div *ngIf="loadingOverdue" class="text-xs text-slate-400">
+      Chargement des retards...
+    </div>
+
+    <div *ngIf="!loadingOverdue && overdue.length">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left">Famille</th>
+              <th class="px-3 py-2 text-left">Code</th>
+              <th class="px-3 py-2 text-left">Montant dû</th>
+              <th class="px-3 py-2 text-left">Payé</th>
+              <th class="px-3 py-2 text-left">Échéance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let b of filteredOverdue"
+              class="border-b border-slate-800 hover:bg-slate-900/70"
+            >
+              <td class="px-3 py-2">{{ b.parent.fullName }}</td>
+              <td class="px-3 py-2">{{ b.parent.familyCode }}</td>
+              <td class="px-3 py-2">
+                {{ b.expectedAmount | number: '1.2-2' }} €
+              </td>
+              <td class="px-3 py-2">
+                {{ b.paidAmount | number: '1.2-2' }} €
+              </td>
+              <td class="px-3 py-2">
+                {{ b.dueDate | date: 'shortDate' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p
+      *ngIf="!loadingOverdue && !overdue.length"
+      class="text-xs text-slate-400"
+    >
+      Aucune famille en retard pour ce mois.
+    </p>
+  </section>
+
+  <!-- LISTE DES PAIEMENTS -->
+  <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
+    <h2 class="text-sm font-semibold text-slate-100">
+      Derniers paiements enregistrés
+    </h2>
+
+    <div *ngIf="loadingPayments" class="text-xs text-slate-400">
+      Chargement des paiements...
+    </div>
+
+    <div *ngIf="!loadingPayments && payments.length">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left">Date</th>
+              <th class="px-3 py-2 text-left">Montant</th>
+              <th class="px-3 py-2 text-left">Méthode</th>
+              <th class="px-3 py-2 text-left">Référence</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let p of payments"
+              class="border-b border-slate-800 hover:bg-slate-900/70"
+            >
+              <td class="px-3 py-2">{{ p.paymentDate | date: 'short' }}</td>
+              <td class="px-3 py-2">
+                {{ p.amount | number: '1.2-2' }} €
+              </td>
+              <td class="px-3 py-2">{{ p.method }}</td>
+              <td class="px-3 py-2">{{ p.reference }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p
+      *ngIf="!loadingPayments && !payments.length"
+      class="text-xs text-slate-400"
+    >
+      Aucun paiement enregistré.
+    </p>
+  </section>
+
+  <!-- IMPORT CSV (DRAG & DROP) -->
+  <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
+    <h2 class="text-sm font-semibold text-slate-100">
+      Import relevé bancaire (CSV)
+    </h2>
+    <p class="text-[0.75rem] text-slate-400">
+      Format attendu :
+      <code class="bg-slate-800 px-1 rounded">reference;amount;date</code>
+      ou
+      <code class="bg-slate-800 px-1 rounded">reference,amount,date</code>.
+    </p>
+
+    <div
+      class="border-2 border-dashed rounded-lg px-4 py-6 text-center text-xs cursor-pointer transition
+             bg-slate-950 border-slate-700 hover:border-indigo-500 hover:bg-slate-900"
+      [class.ring-2]="isDragging"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onFileDrop($event)"
+    >
+      <p>
+        Glissez-déposez votre fichier CSV ici<br />
+        <span class="text-slate-400">ou</span>
+      </p>
+      <button
+        type="button"
+        class="mt-2 px-3 py-1 rounded bg-slate-800 hover:bg-slate-700"
+        (click)="fileInput.click()"
+      >
+        Choisir un fichier
+      </button>
+      <input
+        #fileInput
+        type="file"
+        accept=".csv,text/csv"
+        (change)="onFileSelected($event)"
+        class="hidden"
+      />
+    </div>
+
+    <div *ngIf="importError" class="text-xs text-red-400 mt-2">
+      {{ importError }}
+    </div>
+
+    <div *ngIf="importLines.length" class="mt-4 space-y-2">
+      <h3 class="text-xs font-semibold text-slate-200">Lignes détectées</h3>
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left">Référence</th>
+              <th class="px-3 py-2 text-left">Montant</th>
+              <th class="px-3 py-2 text-left">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let l of importLines"
+              class="border-b border-slate-800 hover:bg-slate-900/70"
+            >
+              <td class="px-3 py-2">{{ l.reference }}</td>
+              <td class="px-3 py-2">
+                {{ l.amount | number: '1.2-2' }} €
+              </td>
+              <td class="px-3 py-2">
+                {{ l.date | date: 'shortDate' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button
+        type="button"
+        class="mt-3 px-3 py-1 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white"
+        (click)="submitImport()"
+        [disabled]="importing || !importLines.length"
+      >
+        Lancer l'import
+      </button>
+
+      <div *ngIf="importing" class="text-xs text-slate-400 mt-1">
+        Import en cours...
+      </div>
+
+      <div *ngIf="importResults.length" class="mt-3 text-xs space-y-1">
+        <h3 class="font-semibold text-slate-200">Résultats de l'import</h3>
+        <ul class="list-disc pl-4">
+          <li *ngFor="let r of importResults">
+            <strong>{{ r.status }}</strong> :
+            {{ r.line.reference }} ({{ r.line.amount }} €)
+            <span *ngIf="r.reason"> - {{ r.reason }}</span>
+            <span *ngIf="r.familyCode"> - Famille {{ r.familyCode }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPORT MANUEL -->
+  <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
+    <h2 class="text-sm font-semibold text-slate-100">
+      Import manuel d'une ligne de relevé
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+      <label class="flex flex-col gap-1 text-slate-300">
+        <span>Référence</span>
+        <input
+          [(ngModel)]="newLine.reference"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-slate-300">
+        <span>Montant</span>
+        <input
+          type="number"
+          [(ngModel)]="newLine.amount"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </label>
+
+      <label class="flex flex-col gap-1 text-slate-300">
+        <span>Date</span>
+        <input
+          type="date"
+          [(ngModel)]="newLine.date"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        />
+      </label>
+
+      <div class="flex items-end gap-2">
+        <button
+          type="button"
+          (click)="addImportLine()"
+          class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs"
+        >
+          Ajouter
+        </button>
+        <button
+          type="button"
+          (click)="clearImportLines()"
+          class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs"
+        >
+          Vider
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="importLines.length" class="mt-3">
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs">
+          <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
+            <tr>
+              <th class="px-3 py-2 text-left">Référence</th>
+              <th class="px-3 py-2 text-left">Montant</th>
+              <th class="px-3 py-2 text-left">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let l of importLines"
+              class="border-b border-slate-800 hover:bg-slate-900/70"
+            >
+              <td class="px-3 py-2">{{ l.reference }}</td>
+              <td class="px-3 py-2">
+                {{ l.amount | number: '1.2-2' }} €
+              </td>
+              <td class="px-3 py-2">
+                {{ l.date | date: 'shortDate' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="importError" class="text-xs text-red-400 mt-1">
+        {{ importError }}
+      </div>
+
+      <button
+        type="button"
+        class="mt-2 px-3 py-1 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white"
+        (click)="submitImport()"
+        [disabled]="importing || !importLines.length"
+      >
+        Lancer l'import
+      </button>
+
+      <div *ngIf="importing" class="text-xs text-slate-400 mt-1">
+        Import en cours...
+      </div>
+
+      <div *ngIf="importResults.length" class="mt-3 text-xs space-y-1">
+        <h3 class="font-semibold text-slate-200">Résultats de l'import</h3>
+        <ul class="list-disc pl-4">
+          <li *ngFor="let r of importResults">
+            <strong>{{ r.status }}</strong> :
+            {{ r.line.reference }} ({{ r.line.amount }} €)
+            <span *ngIf="r.reason">- {{ r.reason }}</span>
+            <span *ngIf="r.familyCode">- Famille {{ r.familyCode }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
