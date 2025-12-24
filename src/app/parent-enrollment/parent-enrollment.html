@@ -1,0 +1,113 @@
+<div class="space-y-6" *ngIf="vm$ | async as vm">
+
+  <button type="button" class="text-xs text-gray-600 hover:underline" (click)="back()">
+    ← Retour
+  </button>
+
+  <div class="bg-white rounded shadow p-4">
+    <h1 class="text-lg font-semibold text-gray-900">
+      @if (vm.mode === 'NEW') { Nouvelle inscription } @else { Inscription #{{ vm.id }} }
+    </h1>
+    <p class="text-xs text-gray-500">
+      @if (vm.mode === 'NEW') { Crée un brouillon puis complète les informations. }
+      @else { Modifie ton brouillon puis sauvegarde ou soumets. }
+    </p>
+
+    @if (vm.error) {
+      <div class="mt-2 text-sm text-red-600">{{ vm.error }}</div>
+    }
+
+    @if (vm.mode === 'NEW') {
+      <div class="mt-4">
+        <button
+          class="px-3 py-2 rounded bg-indigo-600 text-white text-sm hover:bg-indigo-500"
+          (click)="startNew()"
+          [disabled]="saving()"
+        >
+          {{ saving() ? 'Création…' : 'Commencer une nouvelle inscription' }}
+        </button>
+      </div>
+    }
+  </div>
+
+  @if (vm.loading) {
+    <div class="text-sm text-gray-500">Chargement…</div>
+  }
+
+  @if (vm.mode === 'EDIT' && vm.enrollment) {
+    <div class="bg-white rounded shadow p-4 space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="text-xs text-gray-600">
+          Statut : <span class="font-semibold">{{ vm.enrollment.status }}</span>
+        </div>
+
+        <div class="flex gap-2">
+          <button
+            class="px-3 py-1 rounded bg-gray-800 text-white text-xs"
+            (click)="saveDraft(vm.id)"
+            [disabled]="saving()"
+          >
+            {{ saving() ? 'Sauvegarde…' : 'Enregistrer' }}
+          </button>
+
+          <button
+            class="px-3 py-1 rounded bg-green-600 text-white text-xs"
+            (click)="submit(vm.id)"
+            [disabled]="saving()"
+          >
+            Soumettre
+          </button>
+        </div>
+      </div>
+
+      <!-- Enfants -->
+      <h2 class="text-sm font-semibold text-gray-800">Enfants</h2>
+
+      @for (c of vm.children; track c.id) {
+        <div class="border rounded p-3 space-y-2">
+          <div class="text-sm font-semibold text-gray-900">
+            @if (c.existingStudent) {
+              {{ c.existingStudent.fullName }}
+              <span class="text-xs text-gray-500">(réinscription – {{ c.existingStudent.studentRef }})</span>
+            } @else {
+              {{ c.tempFirstName }} {{ c.tempLastName }}
+              <span class="text-xs text-gray-500">(nouvelle inscription)</span>
+            }
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[0.7rem] text-gray-600 mb-1">Niveau souhaité</label>
+              <input
+                class="w-full border rounded px-2 py-1 text-xs bg-gray-50"
+                [(ngModel)]="c.desiredLevel"
+                [ngModelOptions]="{standalone: true}"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[0.7rem] text-gray-600 mb-1">Date de naissance</label>
+              <input
+                type="date"
+                class="w-full border rounded px-2 py-1 text-xs bg-gray-50"
+                [(ngModel)]="c.birthDate"
+                [ngModelOptions]="{standalone: true}"
+              />
+            </div>
+
+            <div>
+              <label class="block text-[0.7rem] text-gray-600 mb-1">Notes</label>
+              <textarea
+                rows="2"
+                class="w-full border rounded px-2 py-1 text-xs bg-gray-50"
+                [(ngModel)]="c.notes"
+                [ngModelOptions]="{standalone: true}"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+</div>

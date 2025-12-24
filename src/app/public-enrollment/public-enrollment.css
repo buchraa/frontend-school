@@ -1,0 +1,48 @@
+.public-enrollment {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.hero {
+  background: linear-gradient(135deg, #2563eb, #22c55e);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.hero button {
+  margin-top: 2rem;
+  padding: 14px 32px;
+  border-radius: 30px;
+  border: none;
+  background: #f59e0b;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: -50px;
+}
+
+.step {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 200px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,.1);
+}
+
+.step span {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+  font-weight: bold;
+}

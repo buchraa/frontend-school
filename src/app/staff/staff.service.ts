@@ -45,7 +45,7 @@ export interface ImportBankResult {
   providedIn: 'root',
 })
 export class StaffService {
-  private readonly API_URL = 'http://localhost:3000';
+  private readonly API_URL = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
 

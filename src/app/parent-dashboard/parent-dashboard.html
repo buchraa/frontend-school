@@ -1,0 +1,197 @@
+<div class="space-y-8" *ngIf="vm$ | async as vm">
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-semibold text-gray-900">Espace Parent</h1>
+      <p class="text-xs text-gray-500">Factures, paiements, inscriptions.</p>
+    </div>
+
+    <div class="flex gap-2">
+      <button
+        class="px-3 py-2 rounded bg-indigo-600 text-white text-sm hover:bg-indigo-500"
+        (click)="startNewEnrollment()"
+      >
+        + Nouvelle inscription
+      </button>
+
+      <button
+        class="px-3 py-2 rounded bg-gray-200 text-gray-800 text-sm hover:bg-gray-300"
+        (click)="refreshAll()"
+      >
+        Rafraîchir
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtres factures -->
+  <section class="bg-white rounded shadow p-4">
+    <div class="flex flex-col md:flex-row md:items-end gap-3">
+      <div>
+        <label class="block text-xs text-gray-600 mb-1">Année</label>
+        <input
+          type="number"
+          class="border rounded px-2 py-1 text-sm"
+          [ngModel]="vm.year"
+          (ngModelChange)="setYear($event)"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-600 mb-1">Mois</label>
+        <input
+          type="number"
+          min="1"
+          max="12"
+          class="border rounded px-2 py-1 text-sm"
+          [ngModel]="vm.month"
+          (ngModelChange)="setMonth($event)"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- FACTURES -->
+  <section class="bg-white rounded shadow p-4 space-y-3">
+    <h2 class="text-sm font-semibold text-gray-900">Factures ({{ vm.month }}/{{ vm.year }})</h2>
+
+    @if (vm.billingState.loading) {
+      <div class="text-sm text-gray-500">Chargement des factures…</div>
+    }
+
+    @if (vm.billingState.error) {
+      <div class="text-sm text-red-600">{{ vm.billingState.error }}</div>
+    }
+
+    @if (!vm.billingState.loading && !vm.billingState.error && !vm.billingState.data.length) {
+      <div class="text-sm text-gray-500">Aucune facture pour cette période.</div>
+    }
+
+    @if (!vm.billingState.loading && vm.billingState.data.length) {
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="px-3 py-2 text-left">Période</th>
+              <th class="px-3 py-2 text-left">Dû</th>
+              <th class="px-3 py-2 text-left">Payé</th>
+              <th class="px-3 py-2 text-left">Statut</th>
+              <th class="px-3 py-2 text-left">Échéance</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (b of vm.billingState.data; track $index) {
+              <tr class="border-b">
+                <td class="px-3 py-2">{{ b.month }}/{{ b.year }}</td>
+                <td class="px-3 py-2">{{ b.expectedAmount }} €</td>
+                <td class="px-3 py-2">{{ b.paidAmount }} €</td>
+                <td class="px-3 py-2">
+                  <span class="px-2 py-1 rounded text-xs bg-gray-100">
+                    {{ statusLabel(b.status) }}
+                  </span>
+                </td>
+                <td class="px-3 py-2">{{ b.dueDate || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- PAIEMENTS -->
+  <section class="bg-white rounded shadow p-4 space-y-3">
+    <h2 class="text-sm font-semibold text-gray-900">Paiements</h2>
+
+    @if (vm.paymentsState.loading) {
+      <div class="text-sm text-gray-500">Chargement des paiements…</div>
+    }
+
+    @if (vm.paymentsState.error) {
+      <div class="text-sm text-red-600">{{ vm.paymentsState.error }}</div>
+    }
+
+    @if (!vm.paymentsState.loading && !vm.paymentsState.error && !vm.paymentsState.data.length) {
+      <div class="text-sm text-gray-500">Aucun paiement enregistré.</div>
+    }
+
+    @if (!vm.paymentsState.loading && vm.paymentsState.data.length) {
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="px-3 py-2 text-left">Date</th>
+              <th class="px-3 py-2 text-left">Montant</th>
+              <th class="px-3 py-2 text-left">Méthode</th>
+              <th class="px-3 py-2 text-left">Référence</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of vm.paymentsState.data; track p.id) {
+              <tr class="border-b">
+                <td class="px-3 py-2">{{ p.paymentDate }}</td>
+                <td class="px-3 py-2">{{ p.amount }} €</td>
+                <td class="px-3 py-2">{{ p.method || '—' }}</td>
+                <td class="px-3 py-2">{{ p.reference || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- INSCRIPTIONS -->
+  <section class="bg-white rounded shadow p-4 space-y-3">
+    <h2 class="text-sm font-semibold text-gray-900">Mes inscriptions</h2>
+
+    @if (vm.enrollmentsState.loading) {
+      <div class="text-sm text-gray-500">Chargement des inscriptions…</div>
+    }
+
+    @if (vm.enrollmentsState.error) {
+      <div class="text-sm text-red-600">{{ vm.enrollmentsState.error }}</div>
+    }
+
+    @if (!vm.enrollmentsState.loading && !vm.enrollmentsState.error ) {
+      <div class="text-sm text-gray-500">Aucune demande d’inscription.</div>
+    }
+
+    @if (!vm.enrollmentsState.loading) {
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50 border-b">
+            <tr>
+              <th class="px-3 py-2 text-left">ID</th>
+              <th class="px-3 py-2 text-left">Année</th>
+              <th class="px-3 py-2 text-left">Enfants</th>
+              <th class="px-3 py-2 text-left">Statut</th>
+              <th class="px-3 py-2 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of vm.enrollmentsState.data; track $index) {
+              <tr class="border-b hover:bg-gray-50">
+                <td class="px-3 py-2">#{{ e.id }}</td>
+                <td class="px-3 py-2">{{ e.schoolYear?.label || '—' }}</td>
+                <td class="px-3 py-2">{{ e.children.lentgh ?? 0 }}</td>
+                <td class="px-3 py-2">
+                  <span class="px-2 py-1 rounded text-xs bg-gray-100">{{ e.status }}</span>
+                </td>
+                <td class="px-3 py-2 text-right">
+                  <button
+                    class="px-3 py-1 rounded bg-indigo-600 text-white text-xs hover:bg-indigo-500"
+                    (click)="openEnrollment()"
+                  >
+                    Ouvrir
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+</div>

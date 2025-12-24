@@ -28,4 +28,8 @@ getClassGroups() {
   return this.http.get<any[]>(`http://localhost:3000/classes`);
 }
 
+adminUpdate(id: number, payload: any) {
+  return this.http.patch<any>(`/api/enrollments/${id}/admin-update`, payload);
+}
+
 }

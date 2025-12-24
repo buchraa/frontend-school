@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, map, startWith, switchMap } from 'rxjs/operators';
+import { catchError, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 
 import {
   AdminService,
@@ -14,6 +14,15 @@ import {
   Role,
 } from '../admin/admin.service';
 
+type Vm = {
+  loading: boolean;
+  error: string | null;
+  users: AdminUserRow[];
+  filtered: AdminUserRow[];
+  search: string;
+  roleFilter: Role | 'ALL';
+};
+
 @Component({
   selector: 'app-admin-users',
   standalone: true,
@@ -23,14 +32,15 @@ import {
 export class AdminUsers {
   private admin = inject(AdminService);
 
-  // ---- UI state
-  search = '';
-  roleFilter: Role | 'ALL' = 'ALL';
+ // UI state
+  private refresh$ = new BehaviorSubject<void>(undefined);
+  private search$ = new BehaviorSubject<string>('');
+  private roleFilter$ = new BehaviorSubject<Role | 'ALL'>('ALL');
 
-  // ---- modals
-  createOpen = false;
-  creating = false;
-  createError: string | null = null;
+  // modal create user
+  createOpen$ = new BehaviorSubject<boolean>(false);
+  creating$ = new BehaviorSubject<boolean>(false);
+  createError$ = new BehaviorSubject<string | null>(null);
 
   form: CreateUserForm = {
     kind: 'PARENT',
@@ -41,46 +51,46 @@ export class AdminUsers {
   };
 
   // ---- refresh trigger
-  private refresh$ = new BehaviorSubject<void>(undefined);
 
-  // ---- users state
-  usersState$ = this.refresh$.pipe(
+  // Data stream
+  private usersState$ = this.refresh$.pipe(
     switchMap(() =>
       this.admin.listUsers().pipe(
-        map((users) => ({
-          loading: false,
-          users,
-          error: null as string | null,
-        })),
-        startWith({
-          loading: true,
-          users: [] as AdminUserRow[],
-          error: null,
-        }),
-        catchError(() =>
+        map((users) => ({ loading: false, error: null as string | null, users })),
+        startWith({ loading: true, error: null as string | null, users: [] as AdminUserRow[] }),
+        catchError((e) =>
           of({
             loading: false,
+            error: e?.error?.message || 'Impossible de charger la liste des utilisateurs.',
             users: [] as AdminUserRow[],
-            error: 'Impossible de charger la liste des utilisateurs.',
           }),
         ),
       ),
     ),
+    shareReplay(1),
   );
 
-  // ---- view model
-  vm$ = combineLatest([this.usersState$]).pipe(
-    map(([usersState]) => ({
-      usersState,
-      filteredUsers: usersState.users.filter((u) => {
-        const roleOk =
-          this.roleFilter === 'ALL' || u.role === this.roleFilter;
-        const text =
-          ((u.fullName ?? '') + ' ' + u.email).toLowerCase();
-        return roleOk && text.includes(this.search.toLowerCase());
-      }),
-    })),
+  vm$ = combineLatest([this.usersState$, this.search$, this.roleFilter$]).pipe(
+    map(([state, search, roleFilter]) => {
+      const filtered = (state.users ?? []).filter((u) => {
+        const roleOk = roleFilter === 'ALL' || u.role === roleFilter;
+        const text = `${u.fullName ?? ''} ${u.email ?? ''}`.toLowerCase();
+        return roleOk && text.includes((search ?? '').toLowerCase());
+      });
+
+      const vm: Vm = {
+        loading: state.loading,
+        error: state.error,
+        users: state.users,
+        filtered,
+        search,
+        roleFilter,
+      };
+      return vm;
+    }),
+    shareReplay(1),
   );
+
 
   // ================= actions =================
 
@@ -88,36 +98,35 @@ export class AdminUsers {
     this.refresh$.next();
   }
 
-  openCreate(kind: CreateKind = 'PARENT') {
-    this.createError = null;
-    this.form = { kind, fullName: '', phone: '', email: '', password: '' };
-    this.createOpen = true;
-  }
 
-  submitCreate(): void {
-    this.createError = null;
 
-    if (!this.form.fullName.trim()){
-      this.createError = 'Nom complet obligatoire.'
-      return;}
-    if (!this.form.email.trim()){
-      this.createError = 'Email obligatoire.'
-      return ;}
-    if (!this.form.password.trim()){
-      this.createError = 'Mot de passe obligatoire.'
-      return ;}
+submitCreate() {
+    this.createError$.next(null);
 
-    this.creating = true;
+    if (!this.form.fullName?.trim()) {
+      this.createError$.next('Nom complet obligatoire.');
+      return;
+    }
+    if (!this.form.email?.trim()) {
+      this.createError$.next('Email obligatoire.');
+      return;
+    }
+    if (!this.form.password?.trim()) {
+      this.createError$.next('Mot de passe obligatoire.');
+      return;
+    }
+
+    this.creating$.next(true);
+
     this.admin.createUserByKind(this.form).subscribe({
       next: () => {
-        this.creating = false;
-        this.createOpen = false;
-        this.refresh();
+        this.creating$.next(false);
+        this.createOpen$.next(false);
+        this.refresh(); // ✅ refresh automatique
       },
       error: (e) => {
-        this.creating = false;
-        this.createError =
-          e?.error?.message || 'Erreur création utilisateur.';
+        this.creating$.next(false);
+        this.createError$.next(e?.error?.message || 'Erreur création utilisateur.');
       },
     });
   }
@@ -132,13 +141,10 @@ export class AdminUsers {
     });
   }
 
-  goToProfile(u: AdminUserRow) {
-    if (u.role === 'PARENT') return ['/admin/parents', u.id];
-    if (u.role === 'TEACHER') return ['/admin/teachers', u.id];
-    if (u.role === 'STAFF' || u.role === 'BENEVOL')
-      return ['/admin/staff', u.id];
-    return null;
-  }
+goToProfile(u: AdminUserRow) {
+  return ['/admin/user', u.id];
+}
+
 
   badgeClass(role: string) {
     return {
@@ -149,4 +155,25 @@ export class AdminUsers {
       'bg-blue-50 text-blue-700': role === 'PARENT',
     };
   }
+    // ====== UI actions
+  setSearch(v: string) {
+    this.search$.next(v);
+  }
+
+  setRoleFilter(v: Role | 'ALL') {
+    this.roleFilter$.next(v);
+  }
+
+    openCreate(kind: CreateKind = 'PARENT') {
+    this.createError$.next(null);
+    this.form = { kind, fullName: '', phone: '', email: '', password: '' };
+    this.createOpen$.next(true);
+  }
+
+  closeCreate() {
+    if (this.creating$.value) return;
+    this.createOpen$.next(false);
+  }
+
+    trackById = (_: number, x: { id?: number }) => x?.id ?? _;
 }

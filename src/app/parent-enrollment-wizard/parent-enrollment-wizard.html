@@ -1,0 +1,169 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-xl font-semibold text-gray-900">Inscription (Parent)</h1>
+    <p class="text-xs text-gray-500">Ajoutez / modifiez les infos de vos enfants puis soumettez.</p>
+  </div>
+
+  <div *ngIf="saveError() as err" class="text-sm text-red-600">
+    {{ err }}
+  </div>
+
+  <ng-container *ngIf="vm$ | async as vm">
+    @if (vm.loading) {
+      <div class="text-sm text-gray-500">Chargement…</div>
+    }
+
+    @if (vm.error) {
+      <div class="text-sm text-red-600">{{ vm.error }}</div>
+    }
+
+    @if (!vm.loading && !vm.enrollment) {
+      <div class="bg-white rounded border p-4 text-sm text-gray-700 space-y-2">
+        <p>Aucune inscription en cours.</p>
+        <a class="text-indigo-600 underline" routerLink="/parent/enrollment/start">
+          Démarrer une inscription
+        </a>
+      </div>
+    }
+
+    @if (!vm.loading && vm.enrollment) {
+      <div class="bg-white rounded border p-4 space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-gray-900">
+              Statut : <span class="text-gray-700">{{ vm.enrollment.status }}</span>
+            </p>
+            <p class="text-xs text-gray-500">
+              Année : {{ vm.enrollment.schoolYear?.label || '—' }}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="px-3 py-2 rounded bg-gray-200 text-sm"
+            (click)="refresh()"
+          >
+            Rafraîchir
+          </button>
+        </div>
+
+        <!-- EXISTING CHILDREN (réinscriptions) -->
+        <div class="space-y-3">
+          <h2 class="text-sm font-semibold text-gray-800">Enfants (réinscriptions / existants)</h2>
+
+          @for (c of vm.enrollment.children; track c.id) {
+            <div class="border rounded p-3 space-y-2">
+              <div class="text-sm font-medium text-gray-900">
+                @if (c.existingStudent) {
+                  {{ c.existingStudent.fullName }}
+                  <span class="text-xs text-gray-500">(ref: {{ c.existingStudent.studentRef }})</span>
+                } @else {
+                  {{ c.tempFirstName }} {{ c.tempLastName }}
+                  <span class="text-xs text-gray-500">(nouvel enfant déjà saisi)</span>
+                }
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <label class="text-xs text-gray-600">
+                  Niveau souhaité
+                  <input class="w-full border rounded px-2 py-1 text-sm"
+                         [(ngModel)]="c.desiredLevel" />
+                </label>
+
+                <label class="text-xs text-gray-600 md:col-span-2">
+                  Notes
+                  <input class="w-full border rounded px-2 py-1 text-sm"
+                         [(ngModel)]="c.notes" />
+                </label>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- NEW CHILDREN (ajout) -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-gray-800">Ajouter un nouvel enfant</h2>
+            <button
+              type="button"
+              class="px-3 py-2 rounded bg-indigo-600 text-white text-sm"
+              (click)="addNewChild()"
+            >
+              + Ajouter
+            </button>
+          </div>
+
+          @if (newChildren().length === 0) {
+            <p class="text-xs text-gray-500">Aucun nouvel enfant ajouté.</p>
+          }
+
+          @for (nc of newChildren(); track $index) {
+            <div class="border rounded p-3 space-y-2">
+              <div class="flex justify-between items-center">
+                <p class="text-sm font-medium text-gray-900">Nouvel enfant</p>
+                <button type="button" class="text-xs text-red-600 underline" (click)="removeNewChild($index)">
+                  Supprimer
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <label class="text-xs text-gray-600">
+                  Prénom
+                  <input class="w-full border rounded px-2 py-1 text-sm"
+                         [(ngModel)]="nc.firstName" />
+                </label>
+
+                <label class="text-xs text-gray-600">
+                  Nom
+                  <input class="w-full border rounded px-2 py-1 text-sm"
+                         [(ngModel)]="nc.lastName" />
+                </label>
+
+                <label class="text-xs text-gray-600">
+                  Niveau souhaité
+                  <input class="w-full border rounded px-2 py-1 text-sm"
+                         [(ngModel)]="nc.desiredLevel" />
+                </label>
+
+                                <label class="text-xs text-gray-600">
+                  Notes
+                  <textarea class="w-full border rounded px-2 py-1 text-sm"
+                         [(ngModel)]="nc.notes" > </textarea>
+                </label>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="flex justify-end gap-2">
+          <button
+            type="button"
+            class="px-3 py-2 rounded bg-red-200 text-sm"
+            (click)="back()"
+          >Retour
+          </button> 
+          <button
+            type="button"
+            class="px-3 py-2 rounded bg-gray-200 text-sm"
+            (click)="saveDraft(vm.enrollment)"
+            [disabled]="saving()"
+          >
+            {{ saving() ? 'Sauvegarde…' : 'Sauvegarder' }}
+          </button>
+
+          <button
+            type="button"
+            class="px-3 py-2 rounded bg-green-600 text-white text-sm"
+            (click)="submit(vm.enrollment)"
+            [disabled]="saving()"
+          >
+            {{ saving() ? 'Envoi…' : 'Soumettre' }}
+          </button>
+
+        
+        </div>
+      </div>
+    }
+  </ng-container>
+</div>

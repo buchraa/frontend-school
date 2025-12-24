@@ -1,0 +1,97 @@
+<div class="space-y-6" *ngIf="vm$ | async as vm">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Détail utilisateur</h1>
+      <p class="text-sm text-gray-500">Vue admin — profil selon le rôle.</p>
+    </div>
+
+    <a
+      routerLink="/admin/users"
+      class="px-3 py-2 rounded bg-gray-200 text-gray-800 text-sm hover:bg-gray-300"
+    >
+      ← Retour
+    </a>
+  </div>
+
+  <!-- States -->
+  <div *ngIf="vm.loading" class="text-sm text-gray-500">Chargement…</div>
+  <div *ngIf="vm.error" class="text-sm text-red-600">{{ vm.error }}</div>
+
+  <!-- Content -->
+  <ng-container *ngIf="!vm.loading && !vm.error && vm.user as u">
+
+    <!-- User card -->
+    <div class="bg-white rounded-lg shadow p-4 space-y-3">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-lg font-semibold text-gray-900">{{ u.fullName || '—' }}</div>
+          <div class="text-sm text-gray-600">{{ u.email }}</div>
+          <div class="text-xs text-gray-500" *ngIf="u.createdAt">Créé le: {{ u.createdAt }}</div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="badgeClass(u.role)">
+            {{ u.role }}
+          </span>
+          <span
+            class="px-2 py-1 rounded-full text-xs font-medium"
+            [ngClass]="u.isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'"
+            *ngIf="u.isActive !== undefined"
+          >
+            {{ u.isActive ? 'Actif' : 'Inactif' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="text-xs text-gray-600" *ngIf="u.profileType">
+        Profile: <strong>{{ u.profileType }}</strong>
+        <span *ngIf="u.profileId">#{{ u.profileId }}</span>
+      </div>
+    </div>
+
+    <!-- Profile details (variable) -->
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-semibold text-gray-900 mb-3">Détails profil</h2>
+
+      <div *ngIf="!u.profile" class="text-sm text-gray-500">
+        Aucun profil détaillé renvoyé par l’API.
+      </div>
+
+      <!-- Parent -->
+      <div *ngIf="u.profileType === 'PARENT' && u.profile" class="space-y-2 text-sm">
+        <div><span class="text-gray-500">Nom:</span> {{ u.profile.fullName }}</div>
+        <div><span class="text-gray-500">Téléphone:</span> {{ u.profile.phone || '—' }}</div>
+        <div><span class="text-gray-500">FamilyCode:</span> <strong>{{ u.profile.familyCode || '—' }}</strong></div>
+        <div><span class="text-gray-500">Email:</span> {{ u.profile.email || '—' }}</div>
+      </div>
+
+      <!-- Teacher -->
+      <div *ngIf="u.profileType === 'TEACHER' && u.profile" class="space-y-2 text-sm">
+        <div><span class="text-gray-500">Nom:</span> {{ u.profile.fullName }}</div>
+        <div><span class="text-gray-500">Téléphone:</span> {{ u.profile.phone || '—' }}</div>
+        <div><span class="text-gray-500">Email:</span> {{ u.profile.email || '—' }}</div>
+      </div>
+
+      <!-- Staff -->
+      <div *ngIf="u.profileType === 'STAFF' && u.profile" class="space-y-2 text-sm">
+        <div><span class="text-gray-500">Nom:</span> {{ u.profile.fullName }}</div>
+        <div><span class="text-gray-500">Téléphone:</span> {{ u.profile.phone || '—' }}</div>
+      </div>
+
+      <!-- Benevol -->
+      <div *ngIf="u.profileType === 'BENEVOL' && u.profile" class="space-y-2 text-sm">
+        <div><span class="text-gray-500">Nom:</span> {{ u.profile.fullName }}</div>
+        <div><span class="text-gray-500">Téléphone:</span> {{ u.profile.phone || '—' }}</div>
+      </div>
+
+      <!-- Fallback generic JSON -->
+      <div *ngIf="u.profile && !['PARENT','TEACHER','STAFF','BENEVOL'].includes(u.profileType || '')"
+           class="text-sm">
+        <pre class="text-xs bg-gray-50 border rounded p-3 overflow-auto">{{ u.profile | json }}</pre>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

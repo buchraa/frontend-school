@@ -8,6 +8,7 @@ import { AdminDashboard } from '../admin-dashboard/admin-dashboard';
 import { AdminEnrollments } from '../admin-enrollments/admin-enrollments';
 import { AdminClassGroupDetail } from '../admin-class-group-detail/admin-class-group-detail';
 import { AdminEnrollmentDetail } from '../admin-enrollment-detail/admin-enrollment-detail';
+import { AdminUserDetail } from '../admin-user-detail/admin-user-detail';
 
 export const routes: Routes = [
     {
@@ -30,6 +31,10 @@ export const routes: Routes = [
             {
                 path: 'users',
                 component: AdminUsers,
+            },
+                        {
+                path: 'user/:id',
+                component: AdminUserDetail,
             },
             {
                 path: 'enrollments',

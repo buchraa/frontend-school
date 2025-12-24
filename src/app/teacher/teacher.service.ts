@@ -20,7 +20,7 @@ export type StudentLite = {
 @Injectable({ providedIn: 'root' })
 export class TeacherService {
   constructor(private http: HttpClient) {}
-  private readonly API_URL = 'http://localhost:3000';
+  private readonly API_URL = 'http://localhost:3000/api';
 
   getDashboard() {
     return this.http.get<any>(`${this.API_URL}/teachers/dashboard`);

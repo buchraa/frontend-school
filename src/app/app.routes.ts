@@ -36,7 +36,7 @@ export const routes: Routes = [
     {
         path: 'admin',
         canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['ADMIN'] },
+        data: { roles: ['ADMIN', 'BENEVOL'] },
         loadChildren: () =>
             import('./admin/admin-module').then((m) => m.AdminModule),
     },

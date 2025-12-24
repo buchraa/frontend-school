@@ -1,4 +1,4 @@
-<div class="space-y-8">
+<div class="space-y-8" *ngIf="vm$ | async as vm">
 
   <!-- TITRE -->
   <div>
@@ -19,40 +19,27 @@
     <div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
       <label class="flex flex-col gap-1 text-slate-300">
         <span>Année</span>
-        <input
-          type="number"
-          [(ngModel)]="year"
-          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
+        <input type="number" [ngModel]="vm.year" (ngModelChange)="setYear($event)"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
       </label>
 
       <label class="flex flex-col gap-1 text-slate-300">
         <span>Mois</span>
-        <input
-          type="number"
-          [(ngModel)]="month"
-          min="1"
-          max="12"
-          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
+        <input type="number" [ngModel]="vm.month" (ngModelChange)="setMonth($event)" min="1" max="12"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500" />
       </label>
 
       <label class="flex flex-col gap-1 text-slate-300 md:col-span-2">
         <span>Famille / Code</span>
-        <input
-          type="text"
-          [(ngModel)]="familyFilter"
+        <input type="text" [ngModel]="vm.familyFilter" (ngModelChange)="setFamilyFilter($event)"
           placeholder="Nom ou code famille"
-          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        />
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500" />
       </label>
 
       <label class="flex flex-col gap-1 text-slate-300">
         <span>Statut</span>
-        <select
-          [(ngModel)]="statusFilter"
-          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
-        >
+        <select [ngModel]="vm.statusFilter" (ngModelChange)="setStatusFilter($event)"
+          class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
           <option value="ALL">Tous</option>
           <option value="PENDING">En attente</option>
           <option value="PARTIAL">Partiel</option>
@@ -63,28 +50,29 @@
     </div>
 
     <div class="mt-3 flex justify-end">
-      <button
-        (click)="refreshAll()"
-        class="px-3 py-1 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white font-medium"
-      >
+      <button (click)="refreshAll()"
+        class="px-3 py-1 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white font-medium">
         Rafraîchir
       </button>
     </div>
   </section>
 
   <!-- STATUT DU MOIS -->
+  <div *ngIf="vm.billingState.loading" class="text-xs text-slate-400">
+    Chargement du statut...
+  </div>
   <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
     <div class="flex items-center justify-between gap-2">
       <h2 class="text-sm font-semibold text-slate-100">
-        Statut des familles pour {{ month }}/{{ year }}
+        Statut des familles pour {{ vm.month }}/{{ vm.year }}
       </h2>
     </div>
 
-    <div *ngIf="loadingStatus" class="text-xs text-slate-400">
+    <div *ngIf="vm.billingState.loading" class="text-xs text-slate-400">
       Chargement du statut...
     </div>
 
-    <div *ngIf="!loadingStatus && billingStatus.length">
+    <div *ngIf="!vm.billingState.loading && vm.billingState.data.length">
       <div class="overflow-x-auto">
         <table class="min-w-full text-xs">
           <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
@@ -99,10 +87,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              *ngFor="let b of filteredBillingStatus"
-              class="border-b border-slate-800 hover:bg-slate-900/70"
-            >
+            <tr *ngFor="let b of vm.filteredBillingStatus" class="border-b border-slate-800 hover:bg-slate-900/70">
               <td class="px-3 py-2">{{ b.parent.fullName }}</td>
               <td class="px-3 py-2">{{ b.parent.familyCode }}</td>
               <td class="px-3 py-2">{{ b.childrenCount }}</td>
@@ -113,20 +98,17 @@
                 {{ b.paidAmount | number: '1.2-2' }} €
               </td>
               <td class="px-3 py-2">
-                <span
-                  class="px-2 py-1 rounded-full text-[0.7rem] font-medium"
-                  [ngClass]="{
+                <span class="px-2 py-1 rounded-full text-[0.7rem] font-medium" [ngClass]="{
                     'bg-emerald-500/20 text-emerald-300': b.status === 'PAID',
                     'bg-amber-500/20 text-amber-300': b.status === 'PARTIAL',
                     'bg-red-500/20 text-red-300': b.status === 'OVERDUE',
                     'bg-slate-700 text-slate-200': b.status === 'PENDING'
-                  }"
-                >
+                  }">
                   {{ getStatusLabel(b.status) }}
                 </span>
               </td>
               <td class="px-3 py-2">
-                {{ b.dueDate | date: 'shortDate' }}
+                {{ b.dueDate | date:'dd/MM/yyyy':'':'fr-FR' }}
               </td>
             </tr>
           </tbody>
@@ -134,10 +116,7 @@
       </div>
     </div>
 
-    <p
-      *ngIf="!loadingStatus && !billingStatus.length"
-      class="text-xs text-slate-400"
-    >
+    <p *ngIf="!vm.billingState.loading && !vm.billingState.data.length" class="text-xs text-slate-400">
       Aucune facturation pour ce mois.
     </p>
   </section>
@@ -146,11 +125,11 @@
   <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
     <h2 class="text-sm font-semibold text-slate-100">Familles en retard</h2>
 
-    <div *ngIf="loadingOverdue" class="text-xs text-slate-400">
+    <div *ngIf="vm.overdueState" class="text-xs text-slate-400">
       Chargement des retards...
     </div>
 
-    <div *ngIf="!loadingOverdue && overdue.length">
+    <div *ngIf="vm.overdueState.data.length">
       <div class="overflow-x-auto">
         <table class="min-w-full text-xs">
           <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
@@ -163,10 +142,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              *ngFor="let b of filteredOverdue"
-              class="border-b border-slate-800 hover:bg-slate-900/70"
-            >
+            <tr *ngFor="let b of vm.filteredOverdue" class="border-b border-slate-800 hover:bg-slate-900/70">
               <td class="px-3 py-2">{{ b.parent.fullName }}</td>
               <td class="px-3 py-2">{{ b.parent.familyCode }}</td>
               <td class="px-3 py-2">
@@ -176,7 +152,7 @@
                 {{ b.paidAmount | number: '1.2-2' }} €
               </td>
               <td class="px-3 py-2">
-                {{ b.dueDate | date: 'shortDate' }}
+                {{ b.dueDate | date:'dd/MM/yyyy':'':'fr-FR' }}
               </td>
             </tr>
           </tbody>
@@ -184,10 +160,7 @@
       </div>
     </div>
 
-    <p
-      *ngIf="!loadingOverdue && !overdue.length"
-      class="text-xs text-slate-400"
-    >
+    <p *ngIf="!vm.overdueState.data.length" class="text-xs text-slate-400">
       Aucune famille en retard pour ce mois.
     </p>
   </section>
@@ -198,11 +171,11 @@
       Derniers paiements enregistrés
     </h2>
 
-    <div *ngIf="loadingPayments" class="text-xs text-slate-400">
+    <div *ngIf="vm.paymentsState" class="text-xs text-slate-400">
       Chargement des paiements...
     </div>
 
-    <div *ngIf="!loadingPayments && payments.length">
+    <div *ngIf="vm.paymentsState.data.length">
       <div class="overflow-x-auto">
         <table class="min-w-full text-xs">
           <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
@@ -214,11 +187,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              *ngFor="let p of payments"
-              class="border-b border-slate-800 hover:bg-slate-900/70"
-            >
-              <td class="px-3 py-2">{{ p.paymentDate | date: 'short' }}</td>
+            <tr *ngFor="let p of vm.paymentsState.data" class="border-b border-slate-800 hover:bg-slate-900/70">
+              <td class="px-3 py-2">{{ p.paymentDate | date:'dd/MM/yyyy':'':'fr-FR' }}</td>
               <td class="px-3 py-2">
                 {{ p.amount | number: '1.2-2' }} €
               </td>
@@ -230,10 +200,7 @@
       </div>
     </div>
 
-    <p
-      *ngIf="!loadingPayments && !payments.length"
-      class="text-xs text-slate-400"
-    >
+    <p *ngIf="!vm.paymentsState.data.length" class="text-xs text-slate-400">
       Aucun paiement enregistré.
     </p>
   </section>
@@ -250,94 +217,86 @@
       <code class="bg-slate-800 px-1 rounded">reference,amount,date</code>.
     </p>
 
-    <div
-      class="border-2 border-dashed rounded-lg px-4 py-6 text-center text-xs cursor-pointer transition
-             bg-slate-950 border-slate-700 hover:border-indigo-500 hover:bg-slate-900"
-      [class.ring-2]="isDragging"
-      (dragover)="onDragOver($event)"
-      (dragleave)="onDragLeave($event)"
-      (drop)="onFileDrop($event)"
-    >
+    <div class="border-2 border-dashed rounded-lg px-4 py-6 text-center text-xs cursor-pointer transition
+             bg-slate-950 border-slate-700 hover:border-indigo-500 hover:bg-slate-900" [class.ring-2]="isDragging"
+      (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onFileDrop($event)">
       <p>
         Glissez-déposez votre fichier CSV ici<br />
         <span class="text-slate-400">ou</span>
       </p>
-      <button
-        type="button"
-        class="mt-2 px-3 py-1 rounded bg-slate-800 hover:bg-slate-700"
-        (click)="fileInput.click()"
-      >
+      <button type="button" class="mt-2 px-3 py-1 rounded bg-slate-800 hover:bg-slate-700" (click)="fileInput.click()">
         Choisir un fichier
       </button>
-      <input
-        #fileInput
-        type="file"
-        accept=".csv,text/csv"
-        (change)="onFileSelected($event)"
-        class="hidden"
-      />
+      <input #fileInput type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" class="hidden" />
     </div>
-
-    <div *ngIf="importError" class="text-xs text-red-400 mt-2">
-      {{ importError }}
-    </div>
-
-    <div *ngIf="importLines.length" class="mt-4 space-y-2">
-      <h3 class="text-xs font-semibold text-slate-200">Lignes détectées</h3>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-xs">
-          <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
-            <tr>
-              <th class="px-3 py-2 text-left">Référence</th>
-              <th class="px-3 py-2 text-left">Montant</th>
-              <th class="px-3 py-2 text-left">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              *ngFor="let l of importLines"
-              class="border-b border-slate-800 hover:bg-slate-900/70"
-            >
-              <td class="px-3 py-2">{{ l.reference }}</td>
-              <td class="px-3 py-2">
-                {{ l.amount | number: '1.2-2' }} €
-              </td>
-              <td class="px-3 py-2">
-                {{ l.date | date: 'shortDate' }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <ng-container *ngIf="vmImport$ | async as vmImport">
+      <div *ngIf="vmImport.error" class="text-xs text-red-400 mt-2">
+        {{ importError }}
       </div>
 
-      <button
-        type="button"
-        class="mt-3 px-3 py-1 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white"
-        (click)="submitImport()"
-        [disabled]="importing || !importLines.length"
-      >
-        Lancer l'import
-      </button>
+      <div *ngIf="vmImport.lines.length" class="mt-4 space-y-2">
+        <h3 class="text-xs font-semibold text-slate-200">Lignes détectées</h3>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-xs">
+            <thead class="bg-slate-950 border-b border-slate-800 text-slate-300">
+              <tr>
+                <th class="px-3 py-2 text-left">Référence</th>
+                <th class="px-3 py-2 text-left">Montant</th>
+                <th class="px-3 py-2 text-left">Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let l of vmImport.lines" class="border-b border-slate-800 hover:bg-slate-900/70">
+                <td class="px-3 py-2">{{ l.reference }}</td>
+                <td class="px-3 py-2">
+                  {{ l.amount | number: '1.2-2' }} €
+                </td>
+                <td class="px-3 py-2">
+                  {{ l.date }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-4 flex gap-2">
 
-      <div *ngIf="importing" class="text-xs text-slate-400 mt-1">
-        Import en cours...
-      </div>
+          <button type="button" class="mt-3 px-3 py-1 rounded
+         bg-indigo-600 hover:bg-indigo-400
+         disabled:bg-slate-500 disabled:cursor-not-allowed
+         text-xs text-white" (click)="submitImport()" [disabled]="importing || importDone || !vmImport.lines?.length">
+            <span *ngIf="!importing && !importDone">Lancer l'import</span>
+            <span *ngIf="importing">Import en cours…</span>
+            <span *ngIf="importDone">Import terminé ✓</span>
+          </button>
 
-      <div *ngIf="importResults.length" class="mt-3 text-xs space-y-1">
-        <h3 class="font-semibold text-slate-200">Résultats de l'import</h3>
-        <ul class="list-disc pl-4">
-          <li *ngFor="let r of importResults">
-            <strong>{{ r.status }}</strong> :
-            {{ r.line.reference }} ({{ r.line.amount }} €)
-            <span *ngIf="r.reason"> - {{ r.reason }}</span>
-            <span *ngIf="r.familyCode"> - Famille {{ r.familyCode }}</span>
-          </li>
-        </ul>
+          <button type="button" (click)="clearImportLines()" class="mt-3 px-3 py-1 rounded
+         bg-red-600 hover:bg-red-400
+         disabled:bg-slate-500 disabled:cursor-not-allowed
+         text-xs text-white">
+            Vider
+          </button>
+        </div>
+
+        <div *ngIf="importing" class="text-xs text-slate-400 mt-1">
+          Import en cours...
+        </div>
+
+        <div *ngIf="importResults.length" class="mt-3 text-xs space-y-1">
+          <h3 class="font-semibold text-slate-200">Résultats de l'import</h3>
+          <ul class="list-disc pl-4">
+            <li *ngFor="let r of importResults">
+              <strong>{{ r.status }}</strong> :
+              {{ r.line.reference }} ({{ r.line.amount }} €)
+              <span *ngIf="r.reason"> - {{ r.reason }}</span>
+              <span *ngIf="r.familyCode"> - Famille {{ r.familyCode }}</span>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </ng-container>
   </section>
 
-  <!-- IMPORT MANUEL -->
+  <!-- IMPORT MANUEL 
   <section class="bg-slate-900 border border-slate-800 rounded-lg p-4 space-y-3">
     <h2 class="text-sm font-semibold text-slate-100">
       Import manuel d'une ligne de relevé
@@ -408,7 +367,7 @@
                 {{ l.amount | number: '1.2-2' }} €
               </td>
               <td class="px-3 py-2">
-                {{ l.date | date: 'shortDate' }}
+                {{ l.date | date:'dd/MM/yyyy':'':'fr-FR' }}
               </td>
             </tr>
           </tbody>
@@ -444,5 +403,5 @@
         </ul>
       </div>
     </div>
-  </section>
+  </section> -->
 </div>

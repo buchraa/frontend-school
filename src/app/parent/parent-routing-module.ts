@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { ParentDashboard } from '../parent-dashboard/parent-dashboard';
 import { ParentLayout } from '../parent-layout/parent-layout';
 import { ParentEnrollment } from '../parent-enrollment/parent-enrollment';
+import { ParentEnrollmentWizard } from '../parent-enrollment-wizard/parent-enrollment-wizard';
 
 const routes: Routes = [
   {
@@ -10,8 +11,8 @@ const routes: Routes = [
     component: ParentLayout,
     children: [
       { path: 'dashboard', component: ParentDashboard },
-      { path: 'enrollment/wizard', component: ParentEnrollment },
-      
+      { path: 'enrollment/wizard', component: ParentEnrollmentWizard },
+      { path: 'enrollment/start', component: ParentEnrollment },
     ],
   }
 ];

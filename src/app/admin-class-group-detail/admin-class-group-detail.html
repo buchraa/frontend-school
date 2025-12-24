@@ -64,7 +64,7 @@
              class="p-2 flex justify-between items-center border-b">
           <div>
             <div class="font-medium">{{ s.fullName }}</div>
-            <div class="text-xs text-gray-500">{{ s.studentRef || '' }}</div>
+            <div class="text-xs text-gray-500">{{ s.studentRef || '' }} {{ s.studentRef || '' }}</div>
           </div>
           <button class="text-sm text-indigo-600 hover:underline"
                   (click)="addStudent(s)">

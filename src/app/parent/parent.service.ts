@@ -23,11 +23,55 @@ export interface FamilyBilling {
   parent?: Parent;
 }
 
+type EnrollmentRow = {
+  id: number;
+  status: 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_TEST' | 'VALIDATED' | 'REJECTED';
+  childrenCount?: number;
+  schoolYear?: { label: string };
+  createdAt?: string;
+};
+
+export type EnrollmentStatus =
+  | 'DRAFT'
+  | 'SUBMITTED'
+  | 'UNDER_REVIEW'
+  | 'PENDING_TEST'
+  | 'VALIDATED'
+  | 'REJECTED';
+export interface EnrollmentCurrent {
+  id: number;
+  status: EnrollmentStatus;
+  parent: any;
+  schoolYear: any;
+  children: FormEnrollmentChild[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+export interface EnrollmentChild {
+  id?: number;
+  fullName?: string;
+  tempLastName?: string;
+  birthDate?: string;
+  desiredLevel?: string;
+  notes?: string;
+  existingStudent?: any; // si tu l'as
+}
+
+export interface FormEnrollmentChild {
+  id?: number;
+ fullName?: string;
+  tempFirstName?: string;
+  tempLastName?: string;
+  birthDate?: string;
+  desiredLevel?: string;
+  notes?: string;
+  existingStudent?: any; // si tu l'as
+}
 @Injectable({
   providedIn: 'root',
 })
 export class ParentService {
-  private readonly API_URL = 'http://localhost:3000';
+  private readonly API_URL = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
 
@@ -38,7 +82,7 @@ export class ParentService {
     return this.http.get<Parent>(`${this.API_URL}/parents/me`);
   }
    getMyEnrollments() {
-    return this.http.get<any[]>(`${this.API_URL}/payments/enrollments`);
+    return this.http.get<EnrollmentRow>(`${this.API_URL}/payments/enrollments`);
   }
 
   getMyBilling(parentId: number, year: number, month: number) {
@@ -48,4 +92,9 @@ export class ParentService {
   getMyPayments() {
     return this.http.get<any[]>(`${this.API_URL}/payments/family`);
   }
+
+      getCurrent(): Observable<any> {
+      return this.http.get<EnrollmentCurrent>(`${this.API_URL}/enrollments/current`);
+    }
+  
 }

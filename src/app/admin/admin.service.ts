@@ -15,6 +15,24 @@ export interface SchoolYear {
   isActive: boolean;
 }
 
+export type AdminEnrollmentChild = {
+  id: number;
+  desiredLevel?: string | null;
+
+  tempFirstName?: string | null;
+  tempLastName?: string | null;
+
+  existingStudent?: { id: number; fullName: string; studentRef?: string };
+
+  enrollmentRequest?: {
+    id: number;
+    parent?: { id: number; fullName: string; familyCode: string };
+    status?: string;
+  };
+
+  targetClassGroup?: { id: number; name: string } | null;
+};
+
 export interface ClassGroup {
   id: number;
   code: string;
@@ -76,11 +94,27 @@ export interface AdminUser {
   role: 'ADMIN' | 'BENEVOL' | 'PARENT' | 'TEACHER' | 'STAFF';
 }
 
+export type AdminUserDetail = {
+  id: number;
+  email: string;
+  role: Role;
+  fullName?: string | null;
+  createdAt?: string;
+  isActive?: boolean;
+
+  // optionnel si ton back l’expose
+  profileType?: ProfileType;
+  profileId?: number | null;
+
+  // “profile” détaillé, variable selon le rôle
+  profile?: any;
+};
+
 @Injectable({
   providedIn: 'root',
 })
 export class AdminService {
-  private readonly API_URL = 'http://localhost:3000';
+  private readonly API_URL = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
 
@@ -235,15 +269,39 @@ getAlerts() {
 
   // Students
   searchStudents(q: string) {
-    return this.http.get<StudentLite[]>(`${this.API_URL}/students?search=${encodeURIComponent(q)}`);
+    return this.http.get<StudentLite[]>(`${this.API_URL}/enrollments/admin/children?search=${encodeURIComponent(q)}`);
   }
 
   // Student ManyToOne: on affecte l'élève à ce groupe (liste d’ids)
-  addStudentsToGroup(groupId: number, studentIds: number[]) {
-    return this.http.post(`${this.API_URL}/classes/${groupId}/students`, { studentIds });
+  addStudentsToGroup(groupId: number, childIds: number[]) {
+    return this.http.post(`${this.API_URL}/classes/${groupId}/assign-child`, { childIds });
   }
 
   removeStudentFromGroup(groupId: number, studentId: number) {
-    return this.http.delete(`${this.API_URL}/class-groups/${groupId}/students/${studentId}`);
+    return this.http.delete(`${this.API_URL}/classes/class-groups/${groupId}/students/${studentId}`);
   }
+
+  getUserDetail(userId: number) {
+  return this.http.get<AdminUserDetail>(`${this.API_URL}/admin/users/${userId}`);
+}
+
+/*listEnrollmentChildren() {
+return this.http.get<AdminEnrollmentChild[]>(`${this.API_URL}/enrollments/children-to-assign`);
+
+}*/
+
+// admin.service.ts
+listEnrollmentChildren(q: string) {
+  return this.http.get<AdminEnrollmentChild[]>(
+    `${this.API_URL}/admin/enrollment-children`,
+    { params: { q } }
+  );
+}
+
+assignEnrollmentChildToGroup(childId: number, groupId: number) {
+  return this.http.post(
+    `${this.API_URL}/admin/enrollment-children/${childId}/assign/${groupId}`,
+    {}
+  );
+}
 }

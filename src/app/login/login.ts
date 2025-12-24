@@ -39,8 +39,11 @@ export class LoginComponent {
         } else if (user.role === 'ADMIN') {
           this.router.navigate(['/admin']);
         }
+        else if (user.role === 'BENEVOL') {
+          this.router.navigate(['/staff/dashboard']);
+        }
         else {
-          this.router.navigate(['/staff']);
+          this.router.navigate(['/enrollment']);
         }
       },
       error: (err) => {
