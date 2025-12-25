@@ -60,7 +60,7 @@ export const routes: Routes = [
   },
 
   /* optionnel plus tard
-  {
+  {^/api/?(.*)$ /$1 break;
     path: 'enrollment/success',
     loadComponent: () =>
       import('./public/enrollment/enrollment-success.component')

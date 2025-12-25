@@ -2,10 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest, forkJoin, of } from 'rxjs';
 import { catchError, map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { EnrollmentAdminService } from '../admin-enrollments/enrollment-admin.service'; // adapte le chemin
 import { toObservable } from '@angular/core/rxjs-interop';
+import { AdminService } from '../admin/admin.service';
 @Component({
   selector: 'app-admin-enrollment-detail',
   standalone: true,
@@ -16,6 +17,9 @@ export class AdminEnrollmentDetail {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private service = inject(EnrollmentAdminService);
+    private adminService = inject(AdminService);
+
+  
 
   // UI
   saving = signal(false);
@@ -111,40 +115,56 @@ export class AdminEnrollmentDetail {
     });
   }
 
-  saveChildAssignments(requestId: number) {
-    this.errorLocal.set(null);
-    this.saving.set(true);
+saveChildAssignments() {
+  this.errorLocal.set(null);
+  this.saving.set(true);
 
-    // payload minimal (évite d’envoyer tout l’objet)
-    const payload = {
-      children: this.draftChildren().map((c: any) => ({
-        enrollmentChildId: c.id,
-        desiredLevel: c.desiredLevel ?? null,
-        targetClassGroupId: c.targetClassGroupId ?? null,
-        notes: c.notes ?? null,
-      })),
-    };
+  // 1️⃣ regrouper par groupId
+  const byGroup = new Map<number, number[]>();
 
-    this.service.adminUpdate(requestId, payload).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.reload.set(this.reload() + 1);
-        alert('Affectations enregistrées.');
-      },
-      error: (e) => {
-        this.saving.set(false);
-        this.errorLocal.set(e?.error?.message || 'Erreur lors de l’enregistrement.');
-      },
-    });
+  for (const c of this.draftChildren()) {
+    if (!c.targetClassGroupId) continue;
+
+    if (!byGroup.has(c.targetClassGroupId)) {
+      byGroup.set(c.targetClassGroupId, []);
+    }
+
+    byGroup.get(c.targetClassGroupId)!.push(c.id); 
+    // ⚠️ c.id doit être EnrollmentChildId
   }
+
+  // 2️⃣ appels API (1 appel par groupe)
+  const calls = Array.from(byGroup.entries()).map(
+    ([groupId, childIds]) =>
+      this.adminService.addStudentsToGroup(groupId, childIds)
+  );
+
+  forkJoin(calls).subscribe({
+    next: () => {
+      this.saving.set(false);
+      alert('Affectations enregistrées');
+      this.reload.set(this.reload() + 1);
+    },
+    error: (e) => {
+      this.saving.set(false);
+      this.errorLocal.set(e.error?.message ?? 'Erreur serveur');
+    },
+  });
+}
+
 
   // helper pour select: quand l’utilisateur choisit un group (id), on le met dans draft
-  setChildGroup(childIndex: number, groupId: number | null) {
-    const children = [...this.draftChildren()];
-    children[childIndex] = {
-      ...children[childIndex],
-      targetClassGroupId: groupId,
-    };
-    this.draftChildren.set(children);
-  }
+
+setChildGroup(index: number, groupId: number | null) {
+  const children = [...this.draftChildren()];
+  children[index] = {
+    ...children[index],
+    targetClassGroupId: groupId,
+  };
+
+  this.draftChildren.set(children);
+
+  console.log('Child', children[index].id, '-> groupId', groupId);
+}
+ 
 }

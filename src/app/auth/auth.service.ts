@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 interface LoginResponse {
   access_token: string;
@@ -24,7 +25,7 @@ export interface CurrentUser {
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
-  private readonly API_URL = '/api'; // adapte si besoin
+  private readonly API_URL = environment.apiUrl;
 
   private currentUser: CurrentUser | null = null;
     private currentUserSubject = new BehaviorSubject<CurrentUser | null>(null);

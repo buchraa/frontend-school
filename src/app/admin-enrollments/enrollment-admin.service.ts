@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentAdminService {
-  private API = '/api';
+  private API = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -25,11 +27,11 @@ export class EnrollmentAdminService {
   return this.http.get<any>(`${this.API}/enrollments/request/${id}`);
 }
 getClassGroups() {
-  return this.http.get<any[]>(`/api/classes`);
+  return this.http.get<any[]>(`${this.API}/classes`);
 }
 
 adminUpdate(id: number, payload: any) {
-  return this.http.patch<any>(`/api/enrollments/${id}/admin-update`, payload);
+  return this.http.patch<any>(`${this.API}/enrollments/${id}/admin-update`, payload);
 }
 
 }

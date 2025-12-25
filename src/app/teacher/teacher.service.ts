@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export type TeacherClassLite = {
   id: number;
@@ -20,7 +21,7 @@ export type StudentLite = {
 @Injectable({ providedIn: 'root' })
 export class TeacherService {
   constructor(private http: HttpClient) {}
-  private readonly API_URL = '/api';
+  private readonly API_URL = environment.apiUrl;
 
   getDashboard() {
     return this.http.get<any>(`${this.API_URL}/teachers/dashboard`);

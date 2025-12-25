@@ -2,6 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { CreatePublicEnrollmentDto } from "./models";
 import { map, Observable } from 'rxjs';
+import { environment } from "../../environments/environment";
 
 export type EnrollmentStatus =
   | 'DRAFT'
@@ -93,7 +94,7 @@ export interface UpdateEnrollmentDto {
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentService {
-  private API_URL = '/api';
+  private API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

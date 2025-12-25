@@ -9,6 +9,7 @@ import { AdminEnrollments } from '../admin-enrollments/admin-enrollments';
 import { AdminClassGroupDetail } from '../admin-class-group-detail/admin-class-group-detail';
 import { AdminEnrollmentDetail } from '../admin-enrollment-detail/admin-enrollment-detail';
 import { AdminUserDetail } from '../admin-user-detail/admin-user-detail';
+import { AdminSchoolYear } from '../admin-school-year/admin-school-year';
 
 export const routes: Routes = [
     {
@@ -19,10 +20,14 @@ export const routes: Routes = [
                 path: '',
                 component: AdminDashboard,
             },
-
-            {
+                        {
                 path: 'classes-subjects',
                 component: AdminClassesSubjects,
+            },
+
+            {
+                path: 'school-years',
+                component: AdminSchoolYear,
             },
                         {
                 path: 'classes-details/:id',

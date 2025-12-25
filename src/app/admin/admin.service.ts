@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 
 export type Role = 'ADMIN' | 'STAFF' | 'TEACHER' | 'PARENT' | 'BENEVOL';
@@ -114,7 +115,7 @@ export type AdminUserDetail = {
   providedIn: 'root',
 })
 export class AdminService {
-  private readonly API_URL = '/api';
+  private readonly API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
