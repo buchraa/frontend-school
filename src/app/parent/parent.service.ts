@@ -71,7 +71,7 @@ export interface FormEnrollmentChild {
   providedIn: 'root',
 })
 export class ParentService {
-  private readonly API_URL = 'http://localhost:3000/api';
+  private readonly API_URL = '/api';
 
   constructor(private http: HttpClient) {}
 

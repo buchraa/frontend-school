@@ -114,7 +114,7 @@ export type AdminUserDetail = {
   providedIn: 'root',
 })
 export class AdminService {
-  private readonly API_URL = 'http://localhost:3000/api';
+  private readonly API_URL = '/api';
 
   constructor(private http: HttpClient) {}
 

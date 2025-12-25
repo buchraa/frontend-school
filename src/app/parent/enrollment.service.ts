@@ -93,7 +93,7 @@ export interface UpdateEnrollmentDto {
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentService {
-  private API_URL = 'http://localhost:3000';
+  private API_URL = '/api';
 
   constructor(private http: HttpClient) {}
 

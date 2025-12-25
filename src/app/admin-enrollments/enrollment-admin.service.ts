@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentAdminService {
-  private API = 'http://localhost:3000';
+  private API = '/api';
 
   constructor(private http: HttpClient) {}
 
@@ -25,7 +25,7 @@ export class EnrollmentAdminService {
   return this.http.get<any>(`${this.API}/enrollments/request/${id}`);
 }
 getClassGroups() {
-  return this.http.get<any[]>(`http://localhost:3000/classes`);
+  return this.http.get<any[]>(`/api/classes`);
 }
 
 adminUpdate(id: number, payload: any) {

@@ -24,7 +24,7 @@ export interface CurrentUser {
 })
 export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
-  private readonly API_URL = 'http://localhost:3000/api'; // adapte si besoin
+  private readonly API_URL = '/api'; // adapte si besoin
 
   private currentUser: CurrentUser | null = null;
     private currentUserSubject = new BehaviorSubject<CurrentUser | null>(null);
