@@ -2,7 +2,7 @@ import { inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TeacherService, TeacherClassLite, StudentLite }  from '../teacher/teacher.service';
+import { TeacherService, TeacherClassLite, StudentLite, AdminUserRow }  from '../teacher/teacher.service';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 @Component({
@@ -44,6 +44,20 @@ export class TeacherDasboard  {
 private selectedClassId$ = new BehaviorSubject<number | null>(null);
   private teacher = inject(TeacherService);
 
+ 
+ users$ = this.teacher.getProfil().pipe(
+    catchError(() => of([])),
+    shareReplay(1)
+  );
+  currentUser$ = this.teacher.getProfil().pipe(
+    map((user) => ({ loading: false, user, error: null as string | null })),
+    startWith({ loading: true, user : {}  as  AdminUserRow, error: null }),
+    catchError((e) =>
+      of({ loading: false, user: {} as AdminUserRow, error: e?.error?.message || 'Erreur chargement' })
+    ),
+    shareReplay(1)
+  );
+
   classesState$ = this.teacher.getMyClasses().pipe(
     map((classes) => ({ loading: false, classes, error: null as string | null })),
     startWith({ loading: true, classes: [] as TeacherClassLite[], error: null }),
@@ -74,6 +88,15 @@ private selectedClassId$ = new BehaviorSubject<number | null>(null);
   selectClass(id: number) {
     this.selectedClassId$.next(id);
   }
+
+
+  
+
+  
+    logout() {
+      localStorage.removeItem('token');
+      window.location.href = '/auth/login';
+    }
 
   trackById = (_: number, x: { id: number }) => x.id;  
 }

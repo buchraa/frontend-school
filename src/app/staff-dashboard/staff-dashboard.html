@@ -72,12 +72,12 @@
   class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"/>
 </label>
 </div>
-<div class="mt-3 flex justify-end">
-  <button (click)="generate()" [disabled]="loading" class="px-3 py-1 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white font-medium">
-    {{ loading ? 'Génération...' : 'Générer' }}
+<div class="grid grid-cols-1 md:grid-cols-5 gap-3 text-xs">
+  <button (click)="generate()" [disabled]="isLoading()" class="px-3 py-1 mt-4 rounded bg-indigo-500 hover:bg-indigo-400 text-xs text-white font-medium">
+    {{ isLoading() ? 'Génération...' : 'Générer' }}
   </button>
 
-  <p *ngIf="msg">{{ msg }}</p>
+  <p class="flex flex-col gap-1 text-slate-300 md:col-span-2 px-3 py-1 mt-4" *ngIf="msg()">{{ msg() }}</p>
 </div>
 </section>
   <!-- STATUT DU MOIS -->

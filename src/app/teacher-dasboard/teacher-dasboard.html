@@ -1,4 +1,19 @@
-<div class="max-w-5xl mx-auto p-6 space-y-6">
+      <!-- HEADER -->
+      <header class="bg-white shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div class="font-semibold text-gray-800">Daaray Paris</div>
+        <ng-container *ngIf="currentUser$ | async as user">
+          <div class="text-sm flex items-center gap-3 text-gray-600">
+            {{ user?.user?.email }}  
+            <button (click)="logout()" 
+              class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs">
+              Déconnexion
+            </button>
+          </div>
+          </ng-container>
+        </div>
+      </header>
+<div class="max-w-5xl mx-auto mt-4 p-6 space-y-6 card">
   <h1 class="text-2xl font-bold">Mes classes</h1>
 
   <ng-container *ngIf="vm$ | async as vm">

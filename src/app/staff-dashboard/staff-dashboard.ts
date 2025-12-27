@@ -1,8 +1,8 @@
-import { Component, inject, NgZone } from '@angular/core';
+import { Component, inject, NgZone, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
-import { catchError, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { catchError, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { ChangeDetectorRef } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
@@ -389,25 +389,29 @@ export class StaffDashboard {
 
   importDone = false;
 
-year = new Date().getFullYear();
-month = new Date().getMonth() + 1;
-loading = false;
-msg = '';
+  year = new Date().getFullYear();
+  month = new Date().getMonth() + 1;
+  isLoading = signal(false);
+  msg = signal('');
 
-    generate() {
-  this.loading = true;
-  this.msg = '';
-  console.log(this.year, this.month)
-  this.staff.generateBilling(this.year, this.month).subscribe({
-    next: () => {
-      this.loading = false;
-      this.msg = 'Factures générées avec succès.';
-    },
-    error: (e) => {
-      this.loading = false;
-      this.msg = e?.error?.message || 'Erreur génération.';
-    }
-  });
+  generate() {
+    this.isLoading.set(true);
+    this.msg.set('');
+    console.log(this.year, this.month)
+    this.staff.generateBilling(this.year, this.month).pipe(
+      finalize(() => this.isLoading.set(false))
+    ).subscribe({
+      next: () => {
+            console.log('loading:', this.isLoading)
+
+        this.msg.set('Factures générées avec succès.') ;
+      },
+      error: (e) => 
+        this.msg.set(e?.error?.message || 'Erreur génération.'),
+      
+    });
+  }
+
 }
 
-}
+

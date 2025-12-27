@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export type TeacherClassLite = {
@@ -17,6 +17,13 @@ export type StudentLite = {
   fullName: string;
   level?: string;
 };
+
+export interface AdminUserRow {
+  id: number;
+  email: string;
+  fullName: string ;
+  profileId: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class TeacherService {
@@ -43,4 +50,8 @@ export class TeacherService {
     .pipe(map(res => res.students));
     ;
   }
+
+        getProfil(): Observable<AdminUserRow> {
+      return this.http.get<AdminUserRow>(`${this.API_URL}/auth/whoami`);
+    }
 }

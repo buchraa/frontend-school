@@ -147,4 +147,10 @@ export class AuthService {
       }),
     );
   }
+
+
+   
+   getCurrentUser$(){
+    return this.currentUser$
+   }
 }
