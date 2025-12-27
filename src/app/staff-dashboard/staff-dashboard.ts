@@ -262,7 +262,7 @@ export class StaffDashboard {
     this.processFileNext(event.dataTransfer.files[0]);
   }
 
-  private processFile(file: File): void {
+  /*private processFile(file: File): void {
     if (!file.name.toLowerCase().endsWith('.csv')) {
       this.importError = 'Merci de sélectionner un fichier CSV (.csv)';
       this.cdr.markForCheck();
@@ -289,7 +289,7 @@ export class StaffDashboard {
     };
 
     reader.readAsText(file, 'utf-8');
-  }
+  }*/
 
   private parseCsvToImportLines(text: string): ImportBankLine[] {
     const lines = text
@@ -388,5 +388,26 @@ export class StaffDashboard {
   }
 
   importDone = false;
+
+year = new Date().getFullYear();
+month = new Date().getMonth() + 1;
+loading = false;
+msg = '';
+
+    generate() {
+  this.loading = true;
+  this.msg = '';
+  console.log(this.year, this.month)
+  this.staff.generateBilling(this.year, this.month).subscribe({
+    next: () => {
+      this.loading = false;
+      this.msg = 'Factures générées avec succès.';
+    },
+    error: (e) => {
+      this.loading = false;
+      this.msg = e?.error?.message || 'Erreur génération.';
+    }
+  });
+}
 
 }

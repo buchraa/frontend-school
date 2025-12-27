@@ -28,6 +28,11 @@ export class AdminEnrollments {
   statusFilter = signal<Status>('ALL');
   savingId = signal<number | null>(null);
 
+  year = new Date().getFullYear();
+month = new Date().getMonth() + 1;
+loading = false;
+msg = '';
+
   // data stream
   private requests$ = this.service.getAllEnrollments().pipe(
     catchError((e) =>
@@ -89,6 +94,21 @@ export class AdminEnrollments {
       },
     });
   }
+
+  generate() {
+  this.loading = true;
+  this.msg = '';
+  this.service.generateBilling(this.year, this.month).subscribe({
+    next: () => {
+      this.loading = false;
+      this.msg = 'Factures générées avec succès.';
+    },
+    error: (e) => {
+      this.loading = false;
+      this.msg = e?.error?.message || 'Erreur génération.';
+    }
+  });
+}
 
   trackById = (_: number, r: any) => r?.id;
 }

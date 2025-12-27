@@ -84,4 +84,9 @@ export class StaffService {
       { lines },
     );
   }
+
+  generateBilling(year: number, month: number) {
+  return this.http.post(`${this.API_URL}/billing/generate`, { year, month });
+}
+
 }

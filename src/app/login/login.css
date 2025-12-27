@@ -1,13 +1,13 @@
 .auth-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #2563eb, #22c55e);
+/*background: linear-gradient(135deg, #2563eb, #22c55e);*/
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .auth-card {
-  background: white;
+ /* background: white;*/
   padding: 2.5rem;
   border-radius: 16px;
   width: 100%;

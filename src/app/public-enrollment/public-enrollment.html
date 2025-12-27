@@ -14,7 +14,7 @@
   </div>
 
   <!-- FORM -->
-  <form *ngIf="!success" class="space-y-6">
+  <form *ngIf="!success" class="space-y-6  card">
 
     <!-- Parent -->
     <div class="bg-white shadow rounded p-4 space-y-3">
@@ -55,7 +55,7 @@
         <input class="input" placeholder="Niveau souhaité" [(ngModel)]="newChild.desiredLevel" name="cd" />
       </div>
 
-      <button type="button" class="btn-secondary" (click)="addChild()">
+      <button type="button" class="btn-secondary " (click)="addChild()">
         + Ajouter un enfant
       </button>
     </div>
@@ -64,7 +64,8 @@
     <div *ngIf="error" class="text-red-600">{{ error }}</div>
 
     <!-- Submit -->
-    <button type="button" class="btn-primary w-full" (click)="submit()" [disabled]="submitting">
+    <button type="button" class="btn-primary mt-3 px-3 py-1 rounded
+         bg-indigo-600 hover:bg-indigo-400" (click)="submit()" [disabled]="submitting">
       {{ submitting ? 'Envoi...' : 'Envoyer la demande' }}
     </button>
 

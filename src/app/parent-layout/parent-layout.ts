@@ -18,7 +18,6 @@ type Vm = {
   selector: 'app-parent-layout',
 imports: [RouterModule, CommonModule,],
   template: `
-    <div class="min-h-screen bg-gray-100">
 
       <!-- HEADER -->
       <header class="bg-white shadow-sm">
@@ -41,7 +40,6 @@ imports: [RouterModule, CommonModule,],
         <router-outlet></router-outlet>
       </main>
 
-    </div>
   `
 })
 export class ParentLayout {

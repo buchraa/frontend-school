@@ -33,5 +33,7 @@ getClassGroups() {
 adminUpdate(id: number, payload: any) {
   return this.http.patch<any>(`${this.API}/enrollments/${id}/admin-update`, payload);
 }
-
+  generateBilling(year: number, month: number) {
+  return this.http.post(`${this.API}/billing/generate`, { year, month });
+}
 }
