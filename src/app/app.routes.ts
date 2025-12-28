@@ -4,48 +4,48 @@ import { AuthGuard } from './auth/auth.guard';
 import { RoleGuard } from './auth/role.guard';
 
 export const routes: Routes = [
-    { path: '', pathMatch: 'full', redirectTo: 'landing' },
-    {
-        path: 'auth',
-        loadChildren: () =>
-            import('./auth/auth-module').then((m) => m.AuthModule),
-    },
-    
-    {
-        path: 'staff',
-        loadChildren: () =>
-            import('./staff/staff-module').then((m) => m.StaffModule),
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['ADMIN', 'BENEVOL'] },
-    },
-    {
-        path: 'teacher',
-        loadChildren: () =>
-            import('./teacher/teacher-module').then((m) => m.TeacherModule),
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['TEACHER'] },
-    },
+  { path: '', pathMatch: 'full', redirectTo: 'landing' },
+  {
+    path: 'auth',
+    loadChildren: () =>
+      import('./auth/auth-module').then((m) => m.AuthModule),
+  },
 
-    {
-        path: 'parent',
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['PARENT'] },
-        loadChildren: () =>
-            import('./parent/parent-module').then((m) => m.ParentModule),
-    },
-    {
-        path: 'admin',
-        canActivate: [AuthGuard, RoleGuard],
-        data: { roles: ['ADMIN', 'BENEVOL'] },
-        loadChildren: () =>
-            import('./admin/admin-module').then((m) => m.AdminModule),
-    },
-    {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'auth/login',
-    },
-      // PUBLIC
+  {
+    path: 'staff',
+    loadChildren: () =>
+      import('./staff/staff-module').then((m) => m.StaffModule),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN', 'BENEVOL'] },
+  },
+  {
+    path: 'teacher',
+    loadChildren: () =>
+      import('./teacher/teacher-module').then((m) => m.TeacherModule),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['TEACHER'] },
+  },
+
+  {
+    path: 'parent',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['PARENT'] },
+    loadChildren: () =>
+      import('./parent/parent-module').then((m) => m.ParentModule),
+  },
+  {
+    path: 'admin',
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['ADMIN', 'BENEVOL'] },
+    loadChildren: () =>
+      import('./admin/admin-module').then((m) => m.AdminModule),
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'auth/login',
+  },
+  // PUBLIC
   {
     path: 'enrollment',
     loadComponent: () =>
@@ -67,12 +67,26 @@ export const routes: Routes = [
         .then(m => m.EnrollmentSuccessComponent),
   },*/
 
-    { path: '**', redirectTo: 'auth/login' },
+    {
+    path: 'forgot-password',
+    loadComponent: () => import('./forgot-password/forgot-password')
+      .then(m => m.ForgotPassword)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./reset-password/reset-password')
+      .then(m => m.ResetPassword)
+  },
+
+  { path: '**', redirectTo: 'auth/login' },
+
+
+
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule],
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
 })
 export class AppRoutingModule { }
 
