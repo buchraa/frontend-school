@@ -20,6 +20,14 @@ export interface CurrentUser {
   iat?: number;
 }
 
+export interface ParentSignupPayload {
+  familyCode: string;
+  phone: string;
+  email: string;
+  password: string;
+}
+
+
 @Injectable({
   providedIn: 'root',
 })
@@ -148,6 +156,9 @@ export class AuthService {
     );
   }
 
+  parentSignup(payload: ParentSignupPayload): Observable<any> {
+    return this.http.post(`${this.API_URL}/auth/signup-family`, payload);
+  }
 
    
    getCurrentUser$(){

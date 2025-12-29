@@ -1,0 +1,36 @@
+<app-public-auth-layout
+  title="Accès à l’espace parent"
+  subtitle="Avez-vous déjà une référence famille ?"
+>
+  <div class="space-y-5 text-center">
+
+    <p class="text-sm text-gray-700">
+      La référence famille vous a été communiquée par l’administration
+      (ex : <strong>F25-009</strong>).
+    </p>
+
+    <a
+      routerLink="/parent-signup"
+      class="block w-full rounded-lg bg-indigo-600 text-white py-3 text-sm font-medium hover:bg-indigo-500 transition"
+    >
+      Oui, j’ai une référence
+    </a>
+
+    <a
+      routerLink="/enrollment"
+      class="block w-full rounded-lg bg-gray-900 text-white py-3 text-sm font-medium hover:bg-gray-800 transition"
+    >
+      Non, je souhaite inscrire mon enfant
+    </a>
+
+    <div class="pt-2">
+      <a
+        routerLink="/login"
+        class="text-xs text-indigo-700 hover:underline"
+      >
+        J’ai déjà un compte, me connecter
+      </a>
+    </div>
+
+  </div>
+</app-public-auth-layout>

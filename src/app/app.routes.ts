@@ -66,7 +66,8 @@ export const routes: Routes = [
       import('./public/enrollment/enrollment-success.component')
         .then(m => m.EnrollmentSuccessComponent),
   },*/
-
+{ path: 'parent/access', loadComponent: () => import('./parent-access/parent-access').then(m => m.ParentAccess) },
+  { path: 'parent-signup', loadComponent: () => import('./parent-signup/parent-signup').then(m => m.ParentSignup) },
     {
     path: 'forgot-password',
     loadComponent: () => import('./forgot-password/forgot-password')

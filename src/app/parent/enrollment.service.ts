@@ -128,8 +128,8 @@ export class EnrollmentService {
   }
 
   /** Submit = PATCH /enrollment/current { submit:true } */
-  submitCurrent(): Observable<ParentEnrollmentItem> {
-    return this.updateCurrent({ submit: true });
+  submitCurrent(payload: UpdateEnrollmentDto): Observable<ParentEnrollmentItem> {
+    return this.updateCurrent(payload);
   }
 
     // GET /enrollment/admin/children?q=...

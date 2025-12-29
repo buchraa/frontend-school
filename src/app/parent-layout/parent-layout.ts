@@ -30,7 +30,11 @@ imports: [RouterModule, CommonModule,],
               class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs">
               Déconnexion
             </button>
+                <a routerLink="/parent/dashboard" class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs">
+      Accueil
+    </a>
           </div>
+          
           </ng-container>
         </div>
       </header>

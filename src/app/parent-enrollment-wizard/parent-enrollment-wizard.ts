@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { EnrollmentService, ParentEnrollmentItem, UpdateEnrollmentDto } from '../parent/enrollment.service';
 import { toObservable } from '@angular/core/rxjs-interop';
@@ -15,7 +15,7 @@ type Vm = {
 @Component({
   standalone: true,
   selector: 'app-parent-enrollment-wizard',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './parent-enrollment-wizard.html',
 })
 export class ParentEnrollmentWizard {
@@ -124,8 +124,8 @@ export class ParentEnrollmentWizard {
       })),
       submit: true,
     };
-
-    this.svc.updateCurrent(payload).subscribe({
+console.log(payload);
+   this.svc.submitCurrent(payload).subscribe({
       next: () => {
         this.saving.set(false);
         this.router.navigate(['/enrollment/success']);
