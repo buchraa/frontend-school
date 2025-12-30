@@ -94,7 +94,7 @@ export class AdminDashboard {
 
   logout() {
     localStorage.removeItem('token');
-    window.location.href = '/auth/login';
+    window.location.href = '';
   }
 
   trackById = (_: number, x: { id?: number }) => x?.id ?? _;

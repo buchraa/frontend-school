@@ -1,73 +1,102 @@
-<div class="max-w-3xl mx-auto p-6 space-y-6">
+<div class="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
 
-  <h1 class="text-2xl font-bold text-center">
-    Inscription – Rentrée scolaire
-  </h1>
-
-  <!-- SUCCESS -->
-  <div *ngIf="success" class="bg-green-50 border border-green-200 p-4 rounded">
-    <h2 class="font-semibold text-green-800">Demande envoyée</h2>
-    <p class="text-sm text-green-700">
-      Votre demande d’inscription a bien été enregistrée.
-      Vous serez contacté après évaluation.
+  <div class="text-center">
+    <h1 class="text-2xl sm:text-3xl font-bold">Inscription – Rentrée scolaire</h1>
+    <p class="text-sm text-slate-600 mt-1">
+      Renseignez les informations du parent, puis ajoutez les enfants à inscrire.
     </p>
   </div>
 
-  <!-- FORM -->
-  <form *ngIf="!success" class="space-y-6  card">
+  <div *ngIf="vm.success" class="bg-green-50 border border-green-200 p-4 rounded-xl">
+    <h2 class="font-semibold text-green-800">Demande envoyée ✅</h2>
+    <p class="text-sm text-green-700">
+      Votre demande d’inscription a bien été enregistrée.
+    </p>
+  </div>
+
+  <form *ngIf="!vm.success" class="bg-white/80 backdrop-blur border shadow-xl rounded-2xl overflow-hidden">
 
     <!-- Parent -->
-    <div class="bg-white shadow rounded p-4 space-y-3">
-      <h2 class="font-semibold">Informations du parent</h2>
+    <div class="p-5 sm:p-6 border-b border-slate-200/60">
+      <h2 class="font-semibold text-slate-900">Informations du parent</h2>
 
-      <input class="input" placeholder="Nom complet"
-        [(ngModel)]="form.parent.fullName" name="fullName" />
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="sm:col-span-2">
+          <label class="text-sm text-slate-700">Nom complet *</label>
+          <input class="input mt-1" [(ngModel)]="form.parent.fullName" name="fullName" />
+        </div>
 
-      <input class="input" placeholder="Email"
-        [(ngModel)]="form.parent.email" name="email" />
+        <div>
+          <label class="text-sm text-slate-700">Email *</label>
+          <input class="input mt-1" [(ngModel)]="form.parent.email" name="email" />
+        </div>
 
-      <input class="input" placeholder="Téléphone"
-        [(ngModel)]="form.parent.phone" name="phone" />
+        <div>
+          <label class="text-sm text-slate-700">Téléphone</label>
+          <input class="input mt-1" [(ngModel)]="form.parent.phone" name="phone" />
+        </div>
 
-      <input class="input" type="password" placeholder="Mot de passe"
-        [(ngModel)]="form.parent.password" name="password" />
+        <div class="sm:col-span-2">
+          <label class="text-sm text-slate-700">Mot de passe *</label>
+          <input class="input mt-1" type="password" [(ngModel)]="form.parent.password" name="password" />
+        </div>
+      </div>
     </div>
 
-    <!-- Children -->
-    <div class="bg-white shadow rounded p-4 space-y-3">
-      <h2 class="font-semibold">Enfants à inscrire</h2>
+    <!-- Enfants -->
+    <div class="p-5 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="font-semibold text-slate-900">Enfants à inscrire</h2>
+        <span class="text-xs text-slate-500">{{ form.children.length }} enfant(s)</span>
+      </div>
 
       <div *ngFor="let c of form.children; let i = index"
-        class="border rounded p-3 flex justify-between items-center">
-        <div>
-          {{ c.firstName }} {{ c.lastName }} – {{ c.desiredLevel }}
+           class="border rounded-xl p-4 bg-white flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <div class="font-semibold text-slate-900">{{ c.firstName }} {{ c.lastName }}</div>
+          <div class="text-sm text-slate-600 mt-1">Niveau : {{ c.desiredLevel }}</div>
         </div>
-        <button type="button" class="text-red-600" (click)="removeChild(i)">
+        <button type="button" class="text-red-600 text-sm" (click)="removeChild(i)">
           Supprimer
         </button>
       </div>
 
-      <!-- Add child -->
-      <div class="grid grid-cols-2 gap-2">
-        <input class="input" placeholder="Prénom" [(ngModel)]="newChild.firstName" name="cf" />
-        <input class="input" placeholder="Nom" [(ngModel)]="newChild.lastName" name="cl" />
-        <input class="input" type="date" [(ngModel)]="newChild.birthDate" name="cb" />
-        <input class="input" placeholder="Niveau souhaité" [(ngModel)]="newChild.desiredLevel" name="cd" />
+      <div class="border rounded-2xl p-4 bg-slate-50">
+        <div class="font-semibold text-slate-900 mb-3">Ajouter un enfant</div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input class="input" placeholder="Prénom" [(ngModel)]="newChild.firstName" name="cf" />
+          <input class="input" placeholder="Nom" [(ngModel)]="newChild.lastName" name="cl" />
+          <input class="input" type="date" [(ngModel)]="newChild.birthDate" name="cb" />
+
+          <select class="input" [(ngModel)]="newChild.desiredLevel" name="cd">
+            <option value="">Choisir un niveau</option>
+            <option *ngFor="let l of levels" [value]="l.value">{{ l.label }}</option>
+          </select>
+
+          <input class="input sm:col-span-2" placeholder="Notes (optionnel)"
+                 [(ngModel)]="newChild.notes" name="cn" />
+        </div>
+
+        <div class="mt-3 flex justify-end">
+          <button type="button" class="btn-secondary" (click)="addChild()">
+            + Ajouter
+          </button>
+        </div>
       </div>
 
-      <button type="button" class="btn-secondary " (click)="addChild()">
-        + Ajouter un enfant
-      </button>
+      <div *ngIf="vm.error" class="rounded-xl bg-red-50 border border-red-200 p-3 text-red-700 text-sm">
+        {{ vm.error }}
+      </div>
+
+      <div class="pt-4 border-t border-slate-200/60 flex justify-end">
+        <button type="button"
+          class="btn-primary px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50"
+          (click)="submit()" [disabled]="vm.submitting">
+          {{ vm.submitting ? 'Envoi...' : 'Envoyer la demande' }}
+        </button>
+      </div>
+
     </div>
-
-    <!-- Error -->
-    <div *ngIf="error" class="text-red-600">{{ error }}</div>
-
-    <!-- Submit -->
-    <button type="button" class="btn-primary mt-3 px-3 py-1 rounded
-         bg-indigo-600 hover:bg-indigo-400" (click)="submit()" [disabled]="submitting">
-      {{ submitting ? 'Envoi...' : 'Envoyer la demande' }}
-    </button>
-
   </form>
 </div>

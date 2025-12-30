@@ -1,11 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from './auth/auth.service';
+import { AppHeader } from './app-header/app-header';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
- template: `<router-outlet />`,
+  imports: [RouterOutlet, AppHeader],
+ templateUrl: './app.html',
 })
 
 export class App {

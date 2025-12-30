@@ -1,51 +1,21 @@
-.public-enrollment {
-  background: #f8fafc;
-  min-height: 100vh;
-  min-width: 80vw;
+.input{
+  width:100%;
+  border:1px solid rgb(203 213 225);
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+  outline:none;
+  background:white;
 }
-
-.hero {
-  background: linear-gradient(135deg, #2563eb, #22c55e);
-  color: white;
-  padding: 4rem 2rem;
-  text-align: center;
+.input:focus{
+  box-shadow:0 0 0 3px rgba(99,102,241,.25);
+  border-color: rgb(99 102 241);
 }
-
-.hero button {
-  margin-top: 2rem;
-  padding: 14px 32px;
-  border-radius: 30px;
-  border: none;
-  background: #f59e0b;
-  font-weight: bold;
-  cursor: pointer;
+.btn-secondary{
+  border:1px solid rgb(203 213 225);
+  background:white;
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:14px;
 }
-
-.steps {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-top: -50px;
-}
-
-.step {
-  background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 200px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0,0,0,.1);
-}
-
-.step span {
-  display: inline-block;
-  background: #2563eb;
-  color: white;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 50%;
-  font-weight: bold;
-}
-
-
+.btn-secondary:hover{ background: rgb(248 250 252); }

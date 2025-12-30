@@ -1,20 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { Role } from '../auth/current-user.model';
+import { PublicAuthLayout } from '../public-layout/public-layout';
+
 
 @Component({
   selector: 'app-landing',
-  imports: [],
- template: `<div class="p-6 text-sm text-gray-600">Redirection...</div>`,
+  imports: [CommonModule, RouterLink,PublicAuthLayout],
+ templateUrl: './landing.html',
 })
 export class Landing {
 constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit() {
     // Si pas connecté → page publique
-    if (!this.auth.isLoggedIn()) {
+  /*  if (!this.auth.isLoggedIn()) {
       this.router.navigateByUrl('/enrollment');
       return;
     }
@@ -26,7 +28,7 @@ constructor(private auth: AuthService, private router: Router) {}
         return;
       }
       this.router.navigateByUrl(this.redirectByRole(u.role));
-    });
+    });*/
   }
 
   private redirectByRole(role: Role): string {

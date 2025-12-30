@@ -15,14 +15,14 @@ type Vm = {
 };
 
 @Component({
-  selector: 'app-parent-layout',
+selector: 'app-parent-layout',
 imports: [RouterModule, CommonModule,],
   template: `
 
       <!-- HEADER -->
-      <header class="bg-white shadow-sm">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div class="font-semibold text-gray-800">Daaray Paris</div>
+ <header class="w-full bg-slate-900 text-white">
+      <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">         
+         <div class="font-semibold">Daaray Paris</div>
         <ng-container *ngIf="vm$ | async as vm">
           <div class="text-sm flex items-center gap-3 text-gray-600">
             {{ vm.parent?.fullName }}  
@@ -40,7 +40,7 @@ imports: [RouterModule, CommonModule,],
       </header>
 
       <!-- CONTENT -->
-      <main class="max-w-5xl mx-auto px-4 py-6">
+      <main class="max-w-7xl mx-auto px-4 py-6">
         <router-outlet></router-outlet>
       </main>
 
@@ -73,6 +73,6 @@ private svc = inject(ParentService);
 
   logout() {
     localStorage.removeItem('token');
-    window.location.href = '/auth/login';
+    window.location.href = '/';
   }
 }

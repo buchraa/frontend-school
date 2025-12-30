@@ -4,7 +4,14 @@ import { AuthGuard } from './auth/auth.guard';
 import { RoleGuard } from './auth/role.guard';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'landing' },
+  { path: '', pathMatch: 'full', redirectTo: 'parent/access' },
+
+  {
+    path: 'landing',
+    loadComponent: () =>
+      import('./landing/landing')
+        .then(m => m.Landing),
+  },
   {
     path: 'auth',
     loadChildren: () =>
@@ -40,14 +47,14 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./admin/admin-module').then((m) => m.AdminModule),
   },
-  {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'auth/login',
-  },
+  /* {
+     path: '',
+     pathMatch: 'full',
+     redirectTo: 'auth/login',
+   },*/
   // PUBLIC
   {
-    path: 'enrollment',
+    path: 'parent/enrollment',
     loadComponent: () =>
       import('./public-enrollment/public-enrollment')
         .then(m => m.PublicEnrollment),
@@ -66,9 +73,9 @@ export const routes: Routes = [
       import('./public/enrollment/enrollment-success.component')
         .then(m => m.EnrollmentSuccessComponent),
   },*/
-{ path: 'parent/access', loadComponent: () => import('./parent-access/parent-access').then(m => m.ParentAccess) },
+  { path: 'parent/access', loadComponent: () => import('./parent-access/parent-access').then(m => m.ParentAccess) },
   { path: 'parent-signup', loadComponent: () => import('./parent-signup/parent-signup').then(m => m.ParentSignup) },
-    {
+  {
     path: 'forgot-password',
     loadComponent: () => import('./forgot-password/forgot-password')
       .then(m => m.ForgotPassword)

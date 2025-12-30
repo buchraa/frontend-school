@@ -12,7 +12,7 @@ interface LoginResponse {
 export interface CurrentUser {
   userId: number;
   email: string;
-  role: 'ADMIN' | 'BENEVOL' | 'PARENT' | 'TEACHER';
+  role: 'ADMIN' | 'BENEVOL' | 'PARENT' | 'TEACHER'| 'STAFF';
   parentId: number | null;
   teacherId: number | null;
   staffId?: number | null;
@@ -65,7 +65,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(this.TOKEN_KEY);
     this.currentUser = null;
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/']);
   }
 
   private saveToken(token: string): void {

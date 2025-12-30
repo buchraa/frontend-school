@@ -96,7 +96,7 @@ this.userEmail = this.user?.email ?? '';
   ];
  logout() {
     localStorage.removeItem('token');
-    window.location.href = '/auth/login';
+    window.location.href = '/';
   }
 
     mobileOpen = signal(false);

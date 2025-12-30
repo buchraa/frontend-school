@@ -43,7 +43,7 @@ export class LoginComponent {
           this.router.navigate(['/staff/dashboard']);
         }
         else {
-          this.router.navigate(['/enrollment']);
+          this.router.navigate(['/parent/access']);
         }
       },
       error: (err) => {
