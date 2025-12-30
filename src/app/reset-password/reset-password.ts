@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { PublicAuthLayout } from '../public-layout/public-layout';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-reset-password',
@@ -16,6 +17,8 @@ export class ResetPassword {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private router = inject(Router);
+  private readonly API_URL = environment.apiUrl;
+  
 
   loading = signal(false);
   done = signal(false);
@@ -50,7 +53,8 @@ export class ResetPassword {
 
     this.loading.set(true);
 
-    this.http.post('http://localhost:3000/auth/reset-password', {
+
+    this.http.post(`${this.API_URL}/auth/reset-password`, {
       token: this.token,
       newPassword,
     }).subscribe({

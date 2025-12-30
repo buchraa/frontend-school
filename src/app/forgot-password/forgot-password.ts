@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { PublicAuthLayout } from '../public-layout/public-layout';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-forgot-password',
@@ -14,6 +15,7 @@ import { PublicAuthLayout } from '../public-layout/public-layout';
 export class ForgotPassword {
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
+   private readonly API_URL = environment.apiUrl;
 
   loading = signal(false);
   sent = signal(false);
@@ -32,7 +34,7 @@ export class ForgotPassword {
 
     this.loading.set(true);
 
-    this.http.post('http://localhost:3000/auth/forgot-password', {
+    this.http.post(`${this.API_URL}/auth/forgot-password`, {
       email: this.form.value.email,
     }).subscribe({
       next: () => {
