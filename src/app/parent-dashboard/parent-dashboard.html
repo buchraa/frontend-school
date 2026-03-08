@@ -173,8 +173,8 @@
             @for (e of vm.enrollmentsState.data; track $index) {
               <tr class="border-b hover:bg-gray-50">
                 <td class="px-3 py-2">#{{ e.id }}</td>
-                <td class="px-3 py-2">{{ e.schoolYear?.label || '—' }}</td>
-                <td class="px-3 py-2">{{ e.children.lentgh ?? 0 }}</td>
+                <td class="px-3 py-2">{{ e.SchoolYearLabel || '—' }}</td>
+                <td class="px-3 py-2">{{ e.childrencount || 0 }}</td>
                 <td class="px-3 py-2">
                   <span class="px-2 py-1 rounded text-xs bg-gray-100">{{ e.status }}</span>
                 </td>

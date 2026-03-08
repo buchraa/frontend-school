@@ -156,7 +156,7 @@ export class ParentSignup {
           // si ton backend renvoie token + user : stocke puis redirige
           // localStorage.setItem('accessToken', res.accessToken);
           this.success.set('Compte créé avec succès. Redirection...');
-          setTimeout(() => this.router.navigateByUrl('/parent'), 600);
+          setTimeout(() => this.router.navigateByUrl('/parent/dashboard'), 600);
         },
         error: (err) => {
           const msg = err?.error?.message ?? 'Erreur lors de la création du compte.';

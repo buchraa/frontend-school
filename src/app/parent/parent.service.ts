@@ -28,7 +28,7 @@ type EnrollmentRow = {
   id: number;
   status: 'SUBMITTED' | 'UNDER_REVIEW' | 'PENDING_TEST' | 'VALIDATED' | 'REJECTED';
   childrenCount?: number;
-  schoolYear?: { label: string };
+  SchoolYearLabel?: string ;
   createdAt?: string;
 };
 
@@ -95,7 +95,7 @@ export class ParentService {
   }
 
       getCurrent(): Observable<any> {
-      return this.http.get<EnrollmentCurrent>(`${this.API_URL}/enrollments/current`);
+      return this.http.get<EnrollmentRow>(`${this.API_URL}/enrollments/current`);
     }
   
 }

@@ -25,7 +25,10 @@ imports: [RouterModule, CommonModule,],
          <div class="font-semibold">Daaray Paris</div>
         <ng-container *ngIf="vm$ | async as vm">
           <div class="text-sm flex items-center gap-3 text-gray-600">
+            <button  
+              class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs">
             {{ vm.parent?.fullName }}  
+              </button>
             <button (click)="logout()" 
               class="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-xs">
               Déconnexion
