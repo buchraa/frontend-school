@@ -20,6 +20,9 @@ type ClassGroupLite = {
   schoolYear?: { id: number; label: string };
 };
 
+type Option = { value: string; label: string; code?: string };
+
+
 export interface ClassGroup {
   id: number;
   code: string;
@@ -46,6 +49,23 @@ export class AdminClassesSubjects {
     level: '',
     maxStudents: undefined as number | undefined,
   };
+  // ✅ Les niveaux sont maintenant des options prédéfinies, pas de champ libre
+  levels: Option[] = [
+    { value: 'DEBUTANT', label: 'Alphabet Arabe', code: 'D1' },
+    { value: 'LECTURE', label: 'Lecture', code: 'D2'  },
+    { value: 'AVANCE', label: 'Mémorisation', code: 'D3'  },
+    { value: 'EXPERT', label: 'Mémorisation Avancée', code: 'D4'  },
+
+  ];
+
+  onLevelChange(levelValue: string) {
+    const selected = this.levels.find(l => l.value === levelValue);
+    if (!selected) {
+      this.form.code = '';
+      return;
+    }
+    this.form.code = `${selected.code}-1`;
+  }
 
   // --- Filters
   private selectedYearId$ = new BehaviorSubject<number | undefined>(undefined);

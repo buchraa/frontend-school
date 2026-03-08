@@ -1,5 +1,3 @@
-
-
 <div class="p-6 space-y-4" *ngIf="vm$ | async as vm">
   <div class="flex items-center justify-between">
     <div>
@@ -19,54 +17,46 @@
 
   <!-- Filters + create group -->
   <div class="bg-white rounded shadow p-4 grid grid-cols-1 md:grid-cols-5 gap-3 items-end"
-       *ngIf="!vm.yearsState.loading">
+    *ngIf="!vm.yearsState.loading">
 
     <div class="md:col-span-2">
       <label class="block text-sm text-gray-600">Année</label>
-      <select class="w-full border rounded px-3 py-2"
-              [ngModel]="vm.selectedYearId"
-              (ngModelChange)="onYearChange($event)">
+      <select class="w-full border rounded px-3 py-2" [ngModel]="vm.selectedYearId"
+        (ngModelChange)="onYearChange($event)">
         <option [ngValue]="undefined">Toutes</option>
         <option *ngFor="let y of vm.yearsState.years; trackBy: trackById" [ngValue]="y.id">
           {{ y.label }} {{ y.isActive ? '(active)' : '' }}
         </option>
       </select>
     </div>
+    <div class="md:col-span-2">
+      <label class="block text-sm text-gray-600">Niveau</label>
+      <select class="w-full border rounded px-3 py-2" [(ngModel)]="form.level" name="level"
+        (ngModelChange)="onLevelChange($event)">
+        <option value="">Choisir le niveau de votre enfant</option>
+        <option *ngFor="let l of levels" [value]="l.value">{{ l.label }}</option>
+      </select>
+    </div>
 
     <div>
       <label class="block text-sm text-gray-600">Code</label>
-      <input class="w-full border rounded px-3 py-2"
-             [(ngModel)]="form.code"
-             placeholder="TA-1" />
+      <input class="w-full border rounded px-3 py-2" [(ngModel)]="form.code" placeholder="TA-1" />
     </div>
 
-    <div>
-      <label class="block text-sm text-gray-600">Niveau</label>
-      <input class="w-full border rounded px-3 py-2"
-             [(ngModel)]="form.level"
-             placeholder="Débutant / CE1..." />
-    </div>
 
     <div>
       <label class="block text-sm text-gray-600">Max étudiants</label>
-      <input class="w-full border rounded px-3 py-2"
-             type="number"
-             [(ngModel)]="form.maxStudents"
-             placeholder="20" />
+      <input class="w-full border rounded px-3 py-2" type="number" [(ngModel)]="form.maxStudents" placeholder="20" />
     </div>
 
     <div class="md:col-span-4">
       <label class="block text-sm text-gray-600">Label (optionnel)</label>
-      <input class="w-full border rounded px-3 py-2"
-             [(ngModel)]="form.label"
-             placeholder="CE1 Groupe B - Samedi" />
+      <input class="w-full border rounded px-3 py-2" [(ngModel)]="form.label" placeholder="CE1 Groupe B - Samedi" />
     </div>
 
     <div class="md:col-span-1">
-      <button type="button"
-              class="w-full px-4 py-2 rounded bg-indigo-600 text-white disabled:opacity-50"
-              [disabled]="!vm.selectedYearId || !form.code.trim()"
-              (click)="createGroup()">
+      <button type="button" class="w-full px-4 py-2 rounded bg-indigo-600 text-white disabled:opacity-50"
+        [disabled]="!vm.selectedYearId || !form.code.trim()" (click)="createGroup()">
         Créer groupe
       </button>
     </div>
@@ -98,8 +88,7 @@
           <td class="p-3">{{ g.maxStudents ?? '—' }}</td>
           <td class="p-3">{{ g.students?.length ?? '—' }}</td>
           <td class="p-3 text-right">
-            <a [routerLink]="['/admin/classes-details', g.id]"
-               class="text-indigo-600 hover:underline">
+            <a [routerLink]="['/admin/classes-details', g.id]" class="text-indigo-600 hover:underline">
               Détails
             </a>
           </td>
@@ -112,4 +101,3 @@
     </table>
   </div>
 </div>
-
